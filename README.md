@@ -1,198 +1,73 @@
-# 📝 **ChikiBite – Project Planning Document**
+# ChikiBite – Food Ordering Mobile App
 
-## 1️⃣ **Project Overview**
-
-**ChikiBite** is a fast-food ordering mobile application inspired by brands like McDonald’s, KFC, and ZUS Coffee. The app allows users to browse food menus, customize orders, add items to a cart, and place pick-up/delivery orders through a modern and user-friendly interface.
-
----
-
-## 2️⃣ **Project Objectives**
-
-* Provide a convenient platform for users to order fast food quickly.
-* Reduce waiting time at the counter by allowing pre-orders.
-* Offer a simple, attractive, and seamless digital ordering experience.
-* Allow easy menu browsing with images, prices, and item details.
-* Enable restaurants to manage menus and orders efficiently.
+## a) Group Members
+- **Member 1:** Name | Matric Number  
+- **Member 2:** Name | Matric Number  
+- **Member 3:** Name | Matric Number  
 
 ---
 
-## 3️⃣ **Target Users**
-
-* Students
-* Office workers
-* Families who want fast food quickly
-* Customers who frequently order take-away
+## b) Project Title
+**ChikiBite – Fast Food Ordering Mobile Application**
 
 ---
 
-## 4️⃣ **Core Features (MVP)**
+## c) Introduction
+**Problem:**  
+Many people experience long waiting times at fast-food restaurants, especially during peak hours. Existing apps often lack a simple, engaging, and efficient interface for ordering fast food quickly.  
 
-### **User Side**
+**Motivation:**  
+We want to create a mobile app that allows users to browse menus, customize orders, and place pickup or delivery orders conveniently.  
 
-1. **User Registration & Login**
-
-   * Email/password or Google login
-2. **Home Page**
-
-   * Food categories
-   * Popular/recommended items
-3. **Menu & Food Details**
-
-   * Browse menu
-   * Food images, description, price
-   * Customization (spicy level, add-ons)
-4. **Cart & Checkout**
-
-   * Add/remove items
-   * Update quantity
-   * Total price calculation
-   * Delivery/pick-up option
-5. **Order Placement**
-
-   * Order summary
-   * Payment (simulated or online)
-   * Save order history
-6. **Order Tracking**
-
-   * Status updates: Pending → Preparing → Ready
+**Relevance:**  
+ChikiBite aims to improve the fast-food ordering experience, reduce wait times, and make ordering fun and easy for users.
 
 ---
 
-## 5️⃣ **Optional but Strong Features (If you have time)**
-
-* Promo codes
-* Ratings & reviews
-* Loyalty points
-* Push notifications
-* Dark mode
-* Admin dashboard for restaurant staff
+## d) Objectives of the Proposed Mobile App
+- Provide a convenient platform for ordering fast food from a mobile device.  
+- Reduce waiting time by enabling pre-ordering for pickup or delivery.  
+- Allow users to view detailed menus, customize orders, and track order status.  
+- Implement a modern, user-friendly, and interactive interface.  
 
 ---
 
-## 6️⃣ **App Flow (User Journey)**
-
-```
-Splash Screen → Login/Sign up → Home
-  → Browse Menu → View Food → Add to Cart → Checkout 
-  → Payment → Order Success → Order Tracking
-  → Order History
-```
+## e) Target Users
+- Students and office workers looking for quick meals.  
+- Families ordering take-away or delivery.  
+- Fast-food enthusiasts who want a smooth digital ordering experience.  
 
 ---
 
-## 7️⃣ **Technology Stack**
+## f) Features and Functionalities
+**Core Features:**
+- User authentication (Sign up, Login)  
+- Home screen with categories and recommended items  
+- Menu listing with item details and customization options  
+- Cart system to manage selected items  
+- Checkout process with delivery/pickup options  
+- Order submission and tracking  
+- User profile and order history  
 
-### **Frontend**
-
-* **Flutter** (Dart)
-
-### **Backend Options**
-
-Choose one:
-
-* **Firebase** (easier & faster)
-
-  * Authentication
-  * Firestore database
-  * Storage for food images
-* **Laravel API + MySQL** (if you want more control)
-
----
-
-## 8️⃣ **Database Structure (If using Firebase Firestore)**
-
-### **Users Collection**
-
-| Field   | Type   |
-| ------- | ------ |
-| userId  | String |
-| name    | String |
-| email   | String |
-| address | String |
-| phone   | String |
-
-### **Menu Collection**
-
-| Field       | Type   |
-| ----------- | ------ |
-| itemId      | String |
-| name        | String |
-| price       | Double |
-| imageUrl    | String |
-| category    | String |
-| description | String |
-
-### **Orders Collection**
-
-| Field       | Type                             |
-| ----------- | -------------------------------- |
-| orderId     | String                           |
-| userId      | String                           |
-| items       | List                             |
-| totalPrice  | Double                           |
-| orderStatus | String (Pending/Preparing/Ready) |
-| timestamp   | DateTime                         |
+**UI Components & Interactions:**
+- Buttons: Add to cart, Checkout, Login/Register  
+- Lists/Grids: Menu items, categories  
+- Forms: Login, Address input, Payment  
+- Feedback: Toast messages, Loading indicators  
 
 ---
 
-## 9️⃣ **Project Timeline (Suggested)**
+## g) Proposed UI Mock-up
+*Note: Replace the placeholders with your sketches or wireframes.*
 
-### **Week 1 – Planning & Setup**
-
-* Project planning
-* Create UI mockups
-* Setup Flutter + Firebase
-* Implement authentication
-
-### **Week 2 – Core UI Screens**
-
-* Home screen
-* Menu screen
-* Food detail screen
-* Cart system
-
-### **Week 3 – Backend & Features**
-
-* Connect menu to database
-* Checkout process
-* Order submission + tracking
-
-### **Week 4 – Finalisation**
-
-* UI polish
-* Bug fixing
-* Documentation
-* Demo video
+- **Splash Screen:** ![Splash](link-to-splash.png)  
+- **Home Screen:** ![Home](link-to-home.png)  
+- **Menu Screen:** ![Menu](link-to-menu.png)  
+- **Food Details Screen:** ![Details](link-to-details.png)  
+- **Cart & Checkout Screen:** ![Cart](link-to-cart.png)  
+- **Order Tracking Screen:** ![Tracking](link-to-tracking.png)  
 
 ---
 
-## 🔟 **UI Pages to Design**
-
-* Splash screen
-* Login / Register
-* Home
-* Menu list
-* Food details
-* Cart
-* Checkout
-* Order success
-* Order tracking
-* User profile
-
----
-
-## 1️⃣1️⃣ **Risks & Challenges**
-
-* Time needed to build full features
-* Integration issues with Firebase
-* Managing state across multiple screens
-* Performance when loading many images
-
----
-
-## 1️⃣2️⃣ **Success Criteria**
-
-* App runs smoothly on Android/iOS
-* User can successfully browse menu and place orders
-* Order data stored correctly
-* UI is modern and easy to use
+## h) Architecture / Technical Design
+- **Widget Structure Example:**
