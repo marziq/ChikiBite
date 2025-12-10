@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 name: chikibites
+=======
+name: chikibite
+>>>>>>> f865553 (Initial commit)
 description: "A new Flutter project."
 publish_to: 'none'
 version: 0.1.0
