@@ -5,9 +5,9 @@
 
 ## a) Group Members
 
-* Member 1: Name | Matric Number
-* Member 2: Name | Matric Number
-* Member 3: Name | Matric Number
+* Member 1: Ammar Haziq Bin Zainal | 2217763
+* Member 2: Iryan Syauqi Bin Azhar | 2213601
+* Member 3: Arina Batrisyia Sobhan Binti Mohd Razali | 2217572
 
 ---
 
