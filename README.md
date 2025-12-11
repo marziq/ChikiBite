@@ -1,7 +1,7 @@
 
 ---
-
-<h1 style='center'> ChikiBite – Food Ordering Mobile App </h1>
+<h1 align="center"> <img alt="logo" src="img/logo.png"/> </h1>
+<h1 align="center"> ChikiBite – Food Ordering Mobile App </h1>
 
 ## a) Group Members
 
@@ -19,31 +19,22 @@ ChikiBite – Fast Food Ordering Mobile Application
 
 ## c) Introduction
 
-**Problem:**
-Many people experience long waiting times at fast-food restaurants, especially during peak hours. Existing apps often lack a simple, engaging, and efficient interface for ordering fast food quickly.
-
-**Motivation:**
-We want to create a mobile app that allows users to browse menus, customize orders, and place pickup or delivery orders conveniently.
-
-**Relevance:**
-ChikiBite aims to improve the fast-food ordering experience, reduce wait times, and make ordering fun and easy for users.
+<p align="justify"> ChikiBite is a mobile application developed to provide users with a convenient and efficient way to order food and beverages directly from the ChikiBite restaurant. The application is designed to simplify the entire food ordering process, allowing users to browse menus, customize their orders and make secure payments directly through the app. Users can also choose between delivery and pickup options, ensuring flexibility based on their preferences. In addition to these core functionalities, ChikiBite includes real-time order tracking, allowing users to monitor the status of their orders from preparation to delivery and a rating and review system to provide feedback and improve the dining experience. The ChikiBite app aims to facilitate the ordering process and deliver a smooth experience for the restaurant’s customers by integrating these features into a user-friendly and responsive interface. </p>
 
 ---
 
-## d) Objectives of the Proposed Mobile App
+## d) Objectives of the ChikiBite Mobile App 
+* To provide customers with a convenient and efficient way to browse the restaurant’s menu, customize their orders and select either delivery or pickup options according to their preferences.
+* To enable secure online payment and real-time order tracking, ensuring that customers can complete transactions smoothly and monitor the status of their orders from preparation to delivery or pickup.
+* To design a user-friendly, intuitive and responsive mobile interface that enhances the overall dining experience while demonstrating effective use of Flutter for mobile app development.
 
-* Provide a convenient platform for ordering fast food from a mobile device.
-* Reduce waiting time by enabling pre-ordering for pickup or delivery.
-* Allow users to view detailed menus, customize orders, and track order status.
-* Implement a modern, user-friendly, and interactive interface.
+
 
 ---
 
 ## e) Target Users
 
-* Students and office workers looking for quick meals.
-* Families ordering take-away or delivery.
-* Fast-food enthusiasts who want a smooth digital ordering experience.
+* Customers – Individuals who want a convenient and efficient way to order food from ChikiBite, whether for pickup or delivery. They want an easy experience that allows them to browse the menu, customize their orders, make secure payments and track their orders all through a user-friendly mobile application.
 
 ---
 
@@ -154,8 +145,6 @@ ChikiBite aims to improve the fast-food ordering experience, reduce wait times, 
 Example flow:
 
 Splash Screen → Login / Register → Home Screen → Select Category / Browse Menu → View Food Details → Add to Cart → Cart → Checkout → Payment → Order Confirmation → Order Tracking → Order History
-
-*Replace with a proper diagram using draw.io, Lucidchart, or any diagram tool.*
 
 ---
 
