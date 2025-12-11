@@ -1,10 +1,10 @@
 
 ---
-<h1 align="center"> <img alt="logo" src="img/logo.png"/> </h1>
-<h1 align="center"> ChikiBite – Food Ordering Mobile App </h1>
+<h1 align="center"> <img width="30%" height="auto" alt="logo" src="img/logo.png"/> </h1>
+<h1 align="center"> <a href="https://git.io/typing-svg"><img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&weight=700&pause=1000&color=F7F518&background=FF421600&width=435&lines=ChikiBite+-+Food+Ordering+Mobile+Application" alt="Typing SVG" /></a> </h1>
 
 ## a) Group Members
-
+<!-- <img alt="gif" src="img/group members.gif"/> -->
 * Member 1: Ammar Haziq Bin Zainal | 2217763
 * Member 2: Iryan Syauqi Bin Azhar | 2213601
 * Member 3: Arina Batrisyia Sobhan Binti Mohd Razali | 2217572
@@ -41,43 +41,44 @@ ChikiBite – Food Ordering Mobile Application
 ## f) Features and Functionalities
 <p align="justify"> The ChikiBite app provides a seamless and convenient food ordering experience through several core modules. Each module is designed with specific interactions and UI components to ensure usability, efficiency, and a responsive interface. </p>
 
-**Core Features:**
+<h3>Core Features: </h3>
 
-*** User Registration & Login ***
+<h4> User Registration & Login </h4>
 
-Description: This module allows users to securely create an account using email and password. It ensures that personal information and order history are protected while enabling a personalized experience. The authentication system is designed to be simple and reliable.
-Interactions: Sign up, log in, log out and reset password.
-UI Components: Text fields, buttons, authentication forms, profile icons.
+* Description: This module allows users to securely create an account using email and password. It ensures that personal information and order history are protected while enabling a personalized experience. The authentication system is designed to be simple and reliable.
+* Interactions: Sign up, log in, log out and reset password.
+* UI Components: Text fields, buttons, authentication forms, profile icons.
 
-*** Home Page ***
-Description: The home page acts as the central hub for accessing the restaurant’s offerings. It displays food categories, popular items, and recommended dishes in a visually appealing layout. This design allows users to navigate the menu efficiently and discover options quickly.
-Interactions: Browse categories, tap items to view details.
-UI Components: Category cards, horizontal scroll lists, banners, navigation menu.
+<h4> Home Page </h4>
+
+* Description: The home page acts as the central hub for accessing the restaurant’s offerings. It displays food categories, popular items, and recommended dishes in a visually appealing layout. This design allows users to navigate the menu efficiently and discover options quickly.
+* Interactions: Browse categories, tap items to view details.
+* UI Components: Category cards, horizontal scroll lists, banners, navigation menu.
 
 *** Menu & Food Details ***
-Description: This module enables users to explore the restaurant’s full menu with detailed information including images, descriptions, and prices. Users can also customize their orders according to preferences, such as selecting spice level or add-ons. The interface ensures clarity and ease of selection for a personalized experience.
-Interactions: Select items, customize options, view details.
-UI Components: Menu cards, images, description text, price labels, dropdowns, checkboxes, add-to-cart buttons.
+* Description: This module enables users to explore the restaurant’s full menu with detailed information including images, descriptions, and prices. Users can also customize their orders according to preferences, such as selecting spice level or add-ons. The interface ensures clarity and ease of selection for a personalized experience.
+* Interactions: Select items, customize options, view details.
+* UI Components: Menu cards, images, description text, price labels, dropdowns, checkboxes, add-to-cart buttons.
 
 *** Cart & Checkout ***
-Description: The cart and checkout module allows users to manage their selected items and review order details before finalizing the purchase. It provides a clear overview of quantities, total price, and delivery or pickup options. This feature is designed to make the checkout process smooth and error-free.
-Interactions: Add/remove items, adjust quantity, select delivery or pickup, proceed to checkout.
-UI Components: Cart list, increment/decrement buttons, summary panel, checkout button, radio buttons for delivery options.
+* Description: The cart and checkout module allows users to manage their selected items and review order details before finalizing the purchase. It provides a clear overview of quantities, total price, and delivery or pickup options. This feature is designed to make the checkout process smooth and error-free.
+* Interactions: Add/remove items, adjust quantity, select delivery or pickup, proceed to checkout.
+* UI Components: Cart list, increment/decrement buttons, summary panel, checkout button, radio buttons for delivery options.
 
 *** Order Placement ***
-Description: Users can review the order summary and complete payment securely through this module. All confirmed orders are saved in the user’s order history for future reference. This ensures reliability and transparency in the transaction process.
-Interactions: Confirm orders, make payment, view order history.
-UI Components: Order summary cards, payment forms, confirmation dialogs, receipt screens.
+* Description: Users can review the order summary and complete payment securely through this module. All confirmed orders are saved in the user’s order history for future reference. This ensures reliability and transparency in the transaction process.
+* Interactions: Confirm orders, make payment, view order history.
+* UI Components: Order summary cards, payment forms, confirmation dialogs, receipt screens.
 
 *** Order Tracking ***
-Description: This module provides real-time updates on the status of orders, from Pending to Completed. It allows users to monitor progress, reducing uncertainty and enhancing satisfaction. Notifications keep users informed at every stage of the order.
-Interactions: Monitor order status, receive notifications.
-UI Components: Status timeline, progress indicators, notification banners.
+* Description: This module provides real-time updates on the status of orders, from Pending to Completed. It allows users to monitor progress, reducing uncertainty and enhancing satisfaction. Notifications keep users informed at every stage of the order.
+* Interactions: Monitor order status, receive notifications.
+* UI Components: Status timeline, progress indicators, notification banners.
 
 *** Rating & Reviews ***
-Description: After receiving their orders, users can rate dishes and provide feedback to the restaurant. This feature helps improve service quality and guides future customers in making informed choices. The process is designed to be simple, encouraging user participation.
-Interactions: Submit ratings, write reviews, view others’ feedback.
-UI Components: Star rating widgets, text input fields, review lists.
+* Description: After receiving their orders, users can rate dishes and provide feedback to the restaurant. This feature helps improve service quality and guides future customers in making informed choices. The process is designed to be simple, encouraging user participation.
+* Interactions: Submit ratings, write reviews, view others’ feedback.
+* UI Components: Star rating widgets, text input fields, review lists.
 
 **UI Components & Interactions:**
 
