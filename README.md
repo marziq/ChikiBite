@@ -1,7 +1,7 @@
 
 ---
 
-# ChikiBite – Food Ordering Mobile App
+<h1 style='center'> ChikiBite – Food Ordering Mobile App </h1>
 
 ## a) Group Members
 
