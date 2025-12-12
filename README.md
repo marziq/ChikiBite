@@ -55,27 +55,32 @@ ChikiBite – Food Ordering Mobile Application
 * Interactions: Browse categories, tap items to view details.
 * UI Components: Category cards, horizontal scroll lists, banners, navigation menu.
 
-*** Menu & Food Details ***
+<h4> Menu & Food Details </h4>
+
 * Description: This module enables users to explore the restaurant’s full menu with detailed information including images, descriptions, and prices. Users can also customize their orders according to preferences, such as selecting spice level or add-ons. The interface ensures clarity and ease of selection for a personalized experience.
 * Interactions: Select items, customize options, view details.
 * UI Components: Menu cards, images, description text, price labels, dropdowns, checkboxes, add-to-cart buttons.
 
-*** Cart & Checkout ***
+<h4> Cart & Checkout </h4>
+
 * Description: The cart and checkout module allows users to manage their selected items and review order details before finalizing the purchase. It provides a clear overview of quantities, total price, and delivery or pickup options. This feature is designed to make the checkout process smooth and error-free.
 * Interactions: Add/remove items, adjust quantity, select delivery or pickup, proceed to checkout.
 * UI Components: Cart list, increment/decrement buttons, summary panel, checkout button, radio buttons for delivery options.
 
-*** Order Placement ***
+<h4> Order Placement </h4>
+
 * Description: Users can review the order summary and complete payment securely through this module. All confirmed orders are saved in the user’s order history for future reference. This ensures reliability and transparency in the transaction process.
 * Interactions: Confirm orders, make payment, view order history.
 * UI Components: Order summary cards, payment forms, confirmation dialogs, receipt screens.
 
-*** Order Tracking ***
+<h4> Order Tracking </h4>
+
 * Description: This module provides real-time updates on the status of orders, from Pending to Completed. It allows users to monitor progress, reducing uncertainty and enhancing satisfaction. Notifications keep users informed at every stage of the order.
 * Interactions: Monitor order status, receive notifications.
 * UI Components: Status timeline, progress indicators, notification banners.
 
-*** Rating & Reviews ***
+<h4> Rating & Reviews </h4>
+
 * Description: After receiving their orders, users can rate dishes and provide feedback to the restaurant. This feature helps improve service quality and guides future customers in making informed choices. The process is designed to be simple, encouraging user participation.
 * Interactions: Submit ratings, write reviews, view others’ feedback.
 * UI Components: Star rating widgets, text input fields, review lists.
