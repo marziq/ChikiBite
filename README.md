@@ -1,10 +1,9 @@
 
 ---
-<h1 align="center"> <img width="30%" height="auto" alt="logo" src="img/logo.png"/> </h1>
+<h1 align="center"> <img width="30%" height="auto" alt="logo" src="assets/img/logo.png"/> </h1>
 <h1 align="center"> <a href="https://git.io/typing-svg"><img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&weight=700&pause=1000&color=F7F518&background=FF421600&width=435&lines=ChikiBite+-+Food+Ordering+Mobile+Application" alt="Typing SVG" /></a> </h1>
 
 ## a) Group Members
-<!-- <img alt="gif" src="img/group members.gif"/> -->
 * Member 1: Ammar Haziq Bin Zainal | 2217763
 * Member 2: Iryan Syauqi Bin Azhar | 2213601
 * Member 3: Arina Batrisyia Sobhan Binti Mohd Razali | 2217572
@@ -170,7 +169,7 @@ ChikiBite – Food Ordering Mobile Application
 * userId: String
 * items: List
 * totalPrice: Double
-* orderStatus: String (Pending/Preparing/Ready)
+* orderStatus: String (Pending/Preparing/Ready/Completed/Cancelled)
 * timestamp: DateTime
 
 ---
