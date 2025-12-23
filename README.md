@@ -103,6 +103,7 @@ ChikiBite – Food Ordering Mobile Application
 * Food Details Screen: [Placeholder]
 * Cart & Checkout Screen: [Placeholder]
 * Order Tracking Screen: [Placeholder]
+* Review and Rating Screen: [Placeholder]
 
 ---
 
