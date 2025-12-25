@@ -131,9 +131,9 @@ ChikiBite – Food Ordering Mobile Application
 
 ## j) Flowchart / Sequence Diagram
 
-Example flow:
+**Flowchart**
 
-Splash Screen → Login / Register → Home Screen → Select Category / Browse Menu → View Food Details → Add to Cart → Cart → Checkout → Payment → Order Confirmation → Order Tracking → Order History
+<h1 align="center"> <img width="110%" height="auto" alt="logo" src="assets\img\ChikiBite - Flowchart.png"/> </h1>
 
 ---
 
