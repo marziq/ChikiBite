@@ -120,69 +120,14 @@ ChikiBite – Food Ordering Mobile Application
 
 ## h) Architecture / Technical Design
 
-**Widget Structure Example:**
-
-* lib/
-
-  * main.dart
-  * screens/
-
-    * home_screen.dart
-    * menu_screen.dart
-    * food_detail_screen.dart
-    * cart_screen.dart
-    * checkout_screen.dart
-    * order_tracking_screen.dart
-  * widgets/
-
-    * food_item_card.dart
-    * category_card.dart
-    * order_status_tile.dart
-  * models/
-
-    * user.dart
-    * menu_item.dart
-    * order.dart
-  * services/
-
-    * auth_service.dart
-    * firestore_service.dart
-
-**State Management Approach:** Provider (for global state: cart, user info, orders)
-
-**Navigation:** Navigator 2.0 / Named routes for screen transitions
-
+<h1 align="center"> <img width="30%" height="auto" alt="logo" src="assets\img\Chikibite - Architecture Design.png"/> </h1>
 ---
 
 ## i) Data Model
 
 **Firestore Collections:**
 
-**Users**
-
-* userId: String
-* name: String
-* email: String
-* address: String
-* phone: String
-
-**Menu**
-
-* itemId: String
-* name: String
-* price: Double
-* imageUrl: String
-* category: String
-* description: String
-
-**Orders**
-
-* orderId: String
-* userId: String
-* items: List
-* totalPrice: Double
-* orderStatus: String (Pending/Preparing/Ready/Completed/Cancelled)
-* timestamp: DateTime
+<h1 align="center"> <img width="30%" height="auto" alt="logo" src="assets\img\ChikiBite Data Model.png"/> </h1>
 
 ---
 
