@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "886717149088",
+    "project_id": "chikibite-eccfd",
+    "storage_bucket": "chikibite-eccfd.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:886717149088:android:db1e8e59504045bde4fec5",
+        "android_client_info": {
+          "package_name": "com.example.chikibite"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD6_4gtDQ8llIfBFflm6d_7fujEU-uqi0c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
