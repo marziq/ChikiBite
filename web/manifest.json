@@ -1,11 +1,6 @@
 {
-<<<<<<< HEAD
-    "name": "chikibites",
-    "short_name": "chikibites",
-=======
     "name": "chikibite",
     "short_name": "chikibite",
->>>>>>> f865553 (Initial commit)
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
