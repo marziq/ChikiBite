@@ -78,7 +78,7 @@ ChikiBite – Food Ordering Mobile Application
 * Interactions: Monitor order status, receive notifications.
 * UI Components: Status timeline, progress indicators, notification banners.
 
-<h4> Rating & Reviews </h4>
+<h4> Rating & Reviews (NK UBAH)</h4>
 
 * Description: After receiving their orders, users can rate dishes and provide feedback to the restaurant. This feature helps improve service quality and guides future customers in making informed choices. The process is designed to be simple, encouraging user participation.
 * Interactions: Submit ratings, write reviews, view others’ feedback.
@@ -103,7 +103,7 @@ ChikiBite – Food Ordering Mobile Application
 * Food Details Screen: [Placeholder]
 * Cart & Checkout Screen: [Placeholder]
 * Order Tracking Screen: [Placeholder]
-* Review and Rating Screen: [Placeholder]
+* Points Screen: [Placeholder]
 
 ---
 
