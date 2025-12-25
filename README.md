@@ -95,8 +95,6 @@ ChikiBite – Food Ordering Mobile Application
 
 ## g) Proposed UI Mock-up
 
-*Note: Replace the placeholders with your sketches or wireframes.*
-
 * Splash Screen: 
 <h1 align="center"> <img width="30%" height="auto" alt="logo" src="assets\img\Splash Screen.jpg"/> </h1>
 
@@ -120,14 +118,14 @@ ChikiBite – Food Ordering Mobile Application
 
 ## h) Architecture / Technical Design
 
-<h1 align="center"> <img width="30%" height="auto" alt="logo" src="assets\img\Chikibite - Architecture Design.png"/> </h1>
+<h1 align="center"> <img width="90%" height="auto" alt="logo" src="assets\img\Chikibite - Architecture Design.png"/> </h1>
 ---
 
 ## i) Data Model
 
 **Firestore Collections:**
 
-<h1 align="center"> <img width="30%" height="auto" alt="logo" src="assets\img\ChikiBite Data Model.png"/> </h1>
+<h1 align="center"> <img width="90%" height="auto" alt="logo" src="assets\img\ChikiBite Data Model.png"/> </h1>
 
 ---
 
