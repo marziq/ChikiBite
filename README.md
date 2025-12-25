@@ -135,6 +135,10 @@ ChikiBite – Food Ordering Mobile Application
 
 <h1 align="center"> <img width="110%" height="auto" alt="logo" src="assets\img\ChikiBite - Flowchart.png"/> </h1>
 
+**Sequence Diagram**
+
+<h1 align="center"> <img width="110%" height="auto" alt="logo" src="assets\img\Chikibite - Sequence Diagram.png"/> </h1>
+
 ---
 
 ## k) References
