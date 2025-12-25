@@ -78,11 +78,11 @@ ChikiBite – Food Ordering Mobile Application
 * Interactions: Monitor order status, receive notifications.
 * UI Components: Status timeline, progress indicators, notification banners.
 
-<h4> Rating & Reviews (NK UBAH)</h4>
+<h4> Reward Points</h4>
 
-* Description: After receiving their orders, users can rate dishes and provide feedback to the restaurant. This feature helps improve service quality and guides future customers in making informed choices. The process is designed to be simple, encouraging user participation.
-* Interactions: Submit ratings, write reviews, view others’ feedback.
-* UI Components: Star rating widgets, text input fields, review lists.
+* Description: After paying for their orders, users will receive points based on the amount spent, which can be redeemed for free items. For example, if a user spends RM10, they receive 10 points. This feature encourages frequent usage and engagement by providing tangible rewards. The process is designed to be simple and motivating.
+* Interactions: View current reward points balance, Redeem points, Track points earned, Receive notifications
+* UI Components: Points balance display (badge or panel), Redeem button or link, List of redeemable items with required points, Progress bar for points toward next reward, Notifications/alerts for points earned or redemption success
 
 **UI Components & Interactions:**
 
@@ -97,13 +97,24 @@ ChikiBite – Food Ordering Mobile Application
 
 *Note: Replace the placeholders with your sketches or wireframes.*
 
-* Splash Screen: [Placeholder]
-* Home Screen: [Placeholder]
-* Menu Screen: [Placeholder]
-* Food Details Screen: [Placeholder]
-* Cart & Checkout Screen: [Placeholder]
-* Order Tracking Screen: [Placeholder]
-* Points Screen: [Placeholder]
+* Splash Screen: 
+<h1 align="center"> <img width="30%" height="auto" alt="logo" src="assets\img\Splash Screen.jpg"/> </h1>
+
+* Home Screen: 
+<h1 align="center"> <img width="30%" height="auto" alt="logo" src="assets\img\Home Page.jpg"/> </h1>
+
+* Menu Screen: 
+<h1 align="center"> <img width="30%" height="auto" alt="logo" src="assets\img\Menu Page.jpg"/> </h1>
+
+* Cart & Checkout Screen: 
+<h1 align="center"> <img width="30%" height="auto" alt="logo" src="assets\img\Order Page.jpg"/> </h1>
+
+* Reward Points Screen: 
+<h1 align="center"> <img width="30%" height="auto" alt="logo" src="assets\img\Rewards Page.jpg"/> </h1>
+
+* Profile Screen:
+<h1 align="center"> <img width="30%" height="auto" alt="logo" src="assets\img\Profile Page.jpg"/> </h1>
+
 
 ---
 
