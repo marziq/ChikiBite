@@ -119,7 +119,7 @@ ChikiBite – Food Ordering Mobile Application
 ## h) Architecture / Technical Design
 
 <h1 align="center"> <img width="90%" height="auto" alt="logo" src="assets\img\Chikibite - Architecture Design.png"/> </h1>
----
+
 
 ## i) Data Model
 
