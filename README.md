@@ -119,7 +119,7 @@ ChikiBite – Food Ordering Mobile Application
 ## h) Architecture / Technical Design
 
 <h1 align="center"> <img width="90%" height="auto" alt="logo" src="assets\img\Chikibite - Architecture Design.png"/> </h1>
----
+
 
 ## i) Data Model
 
@@ -143,9 +143,14 @@ ChikiBite – Food Ordering Mobile Application
 
 ## k) References
 
-* Flutter Documentation: [https://flutter.dev/docs](https://flutter.dev/docs)
-* Firebase Firestore Documentation: [https://firebase.google.com/docs/firestore](https://firebase.google.com/docs/firestore)
-* Flutter UI Design Inspirations: [https://dribbble.com/tags/flutter](https://dribbble.com/tags/flutter)
-* Provider State Management: [https://pub.dev/packages/provider](https://pub.dev/packages/provider)
+* Flutter documentation: 
+Flutter. (2024). Flutter documentation. Docs.flutter.dev. https://docs.flutter.dev/
+* Firebase Firestore Documentation:
+Firebase. (2019). Cloud Firestore  |  Firebase. Firebase. https://firebase.google.com/docs/firestore
+* Flutter UI Design Inspirations:
+Dribble . (n.d.). Flutter [Review of Flutter]. Flutter; Dribble. https://dribbble.com/tags/flutter
+* Provider State Management:
+provider | Flutter Package. (n.d.). Dart Packages. https://pub.dev/packages/provider
+
 
 ---
