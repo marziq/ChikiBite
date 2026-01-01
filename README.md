@@ -24,9 +24,7 @@ ChikiBite – Food Ordering Mobile Application
 
 ## d) Objectives of the ChikiBite Mobile App 
 
-The objective of the ChikiBite is to design and develop a user-friendly and efficient food ordering platform that simplifies the process of operation at the ChikiBite restaurant.
-
-Specifically, the application objectives are: 
+The objective of the ChikiBite is to design and develop a user-friendly and efficient food ordering platform that simplifies the process of operation at the ChikiBite restaurant. Specifically, the application objectives are: 
 * To provide customers with a convenient and efficient way to browse the restaurant’s menu, customize their orders and choose between delivery or pickup options based on their preferences.
 * To enable secure online payment and real-time order tracking, ensuring that customers can complete transactions smoothly and monitor their order status from preparation to delivery or pickup.
 * To design a user-friendly, intuitive and responsive mobile interface that improves the dining experience while demonstrating effective use of Flutter for mobile app development.
