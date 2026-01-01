@@ -24,7 +24,7 @@ ChikiBite – Food Ordering Mobile Application
 
 ## d) Objectives of the ChikiBite Mobile App 
 
-The objective of the ChikiBite is to design and develop a user-friendly and efficient food ordering platform that simplifies the process of operation at the ChikiBite restaurant. Specifically, the application objectives are: 
+The objective of the ChikiBite is to design and develop a user-friendly and efficient food ordering platform that simplifies the process of operation at the ChikiBite restaurant. Thus, the application objectives are: 
 * To provide customers with a convenient and efficient way to browse the restaurant’s menu, customize their orders and choose between delivery or pickup options based on their preferences.
 * To enable secure online payment and real-time order tracking, ensuring that customers can complete transactions smoothly and monitor their order status from preparation to delivery or pickup.
 * To design a user-friendly, intuitive and responsive mobile interface that improves the dining experience while demonstrating effective use of Flutter for mobile app development.
@@ -51,7 +51,7 @@ Behaviors and Preferences:
 ---
 
 ## f) Features and Functionalities
-<p align="justify"> ChikiBite will be developed as a mobile application using Flutter, targeting both Android and iOS platforms. This platform selection is optimal because the target users are active smartphone users who commonly use Android and iOS devices for food ordering. Furtheremore, Flutter enables cross-platform development, allowing a single codebase to support both platforms efficiently. Flutter provides a rich set of widgets and strong performance, enabling a responsive and modern user interface.</p>
+<p align="justify"> ChikiBite will be developed as a mobile application using Flutter, targeting both Android and iOS platforms. This platform selected because the target users are active smartphone users who commonly use Android and iOS devices for food ordering. Furtheremore, Flutter enables cross-platform development, allowing a single codebase to support both platforms efficiently. Flutter provides a rich set of widgets and strong performance, enabling a responsive and modern user interface.</p>
 
 <h3>Core Features: </h3>
 
@@ -99,9 +99,9 @@ Behaviors and Preferences:
 
 **UI Components & Interactions:**
 
-* Buttons: Add to cart, Checkout, Login/Register
+* Buttons: Add to cart, checkout, login/register
 * Lists/Grids: Menu items, categories
-* Forms: Login, Address input, Payment
+* Forms: Login, address input, payment
 * Feedback: Toast messages, Loading indicators
 
 ---
@@ -155,15 +155,10 @@ Behaviors and Preferences:
 ---
 
 ## k) References
-
-* Flutter documentation: 
-Flutter. (2024). Flutter documentation. Docs.flutter.dev. https://docs.flutter.dev/
-* Firebase Firestore Documentation:
-Firebase. (2019). Cloud Firestore  |  Firebase. Firebase. https://firebase.google.com/docs/firestore
-* Flutter UI Design Inspirations:
-Dribble . (n.d.). Flutter [Review of Flutter]. Flutter; Dribble. https://dribbble.com/tags/flutter
-* Provider State Management:
-provider | Flutter Package. (n.d.). Dart Packages. https://pub.dev/packages/provider
+* Flutter. (2024). Flutter documentation. Flutter Developer Documentation. https://docs.flutter.dev/
+* Firebase. (2019). Cloud Firestore documentation. Firebase. https://firebase.google.com/docs/firestore
+* Dribbble. (n.d.). Flutter UI design inspirations. https://dribbble.com/tags/flutter
+* Dart. (n.d.). Provider: State management for Flutter. Pub.dev. https://pub.dev/packages/provider
 
 
 ---
