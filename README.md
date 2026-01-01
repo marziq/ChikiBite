@@ -23,9 +23,13 @@ ChikiBite – Food Ordering Mobile Application
 ---
 
 ## d) Objectives of the ChikiBite Mobile App 
-* To provide customers with a convenient and efficient way to browse the restaurant’s menu, customize their orders and select either delivery or pickup options according to their preferences.
-* To enable secure online payment and real-time order tracking, ensuring that customers can complete transactions smoothly and monitor the status of their orders from preparation to delivery or pickup.
-* To design a user-friendly, intuitive and responsive mobile interface that enhances the overall dining experience while demonstrating effective use of Flutter for mobile app development.
+
+The primary objective of the ChikiBite is to design and develop a user-friendly and efficient food ordering platform that simplifies the process of browsing menus, placing orders and making payments for customers of the ChikiBite restaurant.
+
+Specifically, the application objectives are: 
+* To provide customers with a convenient and efficient way to browse the restaurant’s menu, customize their orders and choose between delivery or pickup options based on their preferences.
+* To enable secure online payment and real-time order tracking, ensuring that customers can complete transactions smoothly and monitor their order status from preparation to delivery or pickup.
+* To design a user-friendly, intuitive and responsive mobile interface that improves the dining experience while demonstrating effective use of Flutter for mobile app development.
 
 
 
@@ -33,12 +37,23 @@ ChikiBite – Food Ordering Mobile Application
 
 ## e) Target Users
 
-* Customers – Individuals who want a convenient and efficient way to order food from ChikiBite, whether for pickup or delivery. They want an easy experience that allows them to browse the menu, customize their orders, make secure payments and track their orders all through a user-friendly mobile application.
+The primary target users of the ChikiBite Mobile App are:
+* Customers – Individuals who want a convenient and efficient way to order food from ChikiBite, whether for pickup or delivery. 
+
+Demographics:
+* Young adults, university students and working professionals
+* Smartphone users aged approximately 16–55 
+
+Behaviors and Preferences:
+* Prefer ordering food online rather than in-store
+* Value time efficiency, especially during busy schedules
+* Expect clear menus, easy customization and fast checkout
+* Prefer real-time order updates to reduce uncertainty
 
 ---
 
 ## f) Features and Functionalities
-<p align="justify"> The ChikiBite app provides a seamless and convenient food ordering experience through several core modules. Each module is designed with specific interactions and UI components to ensure usability, efficiency, and a responsive interface. </p>
+<p align="justify"> ChikiBite will be developed as a mobile application using Flutter, targeting both Android and iOS platforms. This platform selection is optimal because the target users are active smartphone users who commonly use Android and iOS devices for food ordering. Furtheremore, Flutter enables cross-platform development, allowing a single codebase to support both platforms efficiently. Flutter provides a rich set of widgets and strong performance, enabling a responsive and modern user interface.</p>
 
 <h3>Core Features: </h3>
 
