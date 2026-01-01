@@ -18,13 +18,13 @@ ChikiBite – Food Ordering Mobile Application
 
 ## c) Introduction
 
-<p align="justify"> ChikiBite is a mobile application developed to provide users with a convenient and efficient way to order food and beverages directly from the ChikiBite restaurant. The application simplifies the entire food ordering process, allowing users to browse menus, customize their orders, and make secure payments directly through the app. Users can choose between delivery and pickup options, ensuring flexibility based on their preferences. In addition, ChikiBite includes real-time order tracking, allowing users to monitor the status of their orders from preparation to delivery. The app also rewards users with points for each purchase, which can be redeemed for free items, encouraging frequent usage and engagement. Overall, ChikiBite aims to deliver a smooth, user-friendly, and rewarding experience for its customers.</p>
+<p align="justify"> ChikiBite is a mobile application developed to provide users with a convenient and efficient way to order food and beverages directly from the ChikiBite restaurant. The application simplifies the entire food ordering process, allowing users to browse menus, customize their orders and make secure payments directly through the app. Users can choose between delivery and pickup options, ensuring flexibility based on their preferences. In addition, ChikiBite includes real-time order tracking, allowing users to monitor the status of their orders from preparation to delivery. The app also rewards users with points for each purchase, which can be redeemed for free items, encouraging frequent usage and engagement. Overall, ChikiBite aims to deliver a smooth, user-friendly, and rewarding experience for its customers.</p>
 
 ---
 
 ## d) Objectives of the ChikiBite Mobile App 
 
-The primary objective of the ChikiBite is to design and develop a user-friendly and efficient food ordering platform that simplifies the process of browsing menus, placing orders and making payments for customers of the ChikiBite restaurant.
+The objective of the ChikiBite is to design and develop a user-friendly and efficient food ordering platform that simplifies the process of operation at the ChikiBite restaurant.
 
 Specifically, the application objectives are: 
 * To provide customers with a convenient and efficient way to browse the restaurant’s menu, customize their orders and choose between delivery or pickup options based on their preferences.
@@ -46,7 +46,7 @@ Demographics:
 
 Behaviors and Preferences:
 * Prefer ordering food online rather than in-store
-* Value time efficiency, especially during busy schedules
+* Value time especially during busy schedules
 * Expect clear menus, easy customization and fast checkout
 * Prefer real-time order updates to reduce uncertainty
 
