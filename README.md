@@ -18,14 +18,16 @@ ChikiBite – Food Ordering Mobile Application
 
 ## c) Introduction
 
-<p align="justify"> ChikiBite is a mobile application developed to provide users with a convenient and efficient way to order food and beverages directly from the ChikiBite restaurant. The application simplifies the entire food ordering process, allowing users to browse menus, customize their orders, and make secure payments directly through the app. Users can choose between delivery and pickup options, ensuring flexibility based on their preferences. In addition, ChikiBite includes real-time order tracking, allowing users to monitor the status of their orders from preparation to delivery. The app also rewards users with points for each purchase, which can be redeemed for free items, encouraging frequent usage and engagement. Overall, ChikiBite aims to deliver a smooth, user-friendly, and rewarding experience for its customers.</p>
+<p align="justify"> ChikiBite is a mobile application developed to provide users with a convenient and efficient way to order food and beverages directly from the ChikiBite restaurant. The application simplifies the entire food ordering process, allowing users to browse menus, customize their orders and make secure payments directly through the app. Users can choose between delivery and pickup options, ensuring flexibility based on their preferences. In addition, ChikiBite includes real-time order tracking, allowing users to monitor the status of their orders from preparation to delivery. The app also rewards users with points for each purchase, which can be redeemed for free items, encouraging frequent use and engagement. </p>
 
 ---
 
 ## d) Objectives of the ChikiBite Mobile App 
-* To provide customers with a convenient and efficient way to browse the restaurant’s menu, customize their orders and select either delivery or pickup options according to their preferences.
-* To enable secure online payment and real-time order tracking, ensuring that customers can complete transactions smoothly and monitor the status of their orders from preparation to delivery or pickup.
-* To design a user-friendly, intuitive and responsive mobile interface that enhances the overall dining experience while demonstrating effective use of Flutter for mobile app development.
+
+The objective of the ChikiBite is to design and develop a user-friendly and efficient food ordering platform that simplifies the process of operation at the ChikiBite restaurant. Thus, the application objectives are: 
+* To provide customers with a convenient and efficient way to browse the restaurant’s menu, customize their orders and choose between delivery or pickup options based on their preferences.
+* To enable secure online payment and real-time order tracking, ensuring that customers can complete transactions smoothly and monitor their order status from preparation to delivery or pickup.
+* To design a user-friendly, intuitive and responsive mobile interface that improves the dining experience while demonstrating effective use of Flutter for mobile app development.
 
 
 
@@ -33,12 +35,23 @@ ChikiBite – Food Ordering Mobile Application
 
 ## e) Target Users
 
-* Customers – Individuals who want a convenient and efficient way to order food from ChikiBite, whether for pickup or delivery. They want an easy experience that allows them to browse the menu, customize their orders, make secure payments and track their orders all through a user-friendly mobile application.
+The primary target users of the ChikiBite Mobile App are:
+* Customers – Individuals who want a convenient and efficient way to order food from ChikiBite, whether for pickup or delivery. 
+
+Demographics:
+* Young adults, university students and working professionals
+* Smartphone users aged approximately 16–55 
+
+Behaviors and Preferences:
+* Prefer ordering food online rather than in-store
+* Value time especially during busy schedules
+* Expect clear menus, easy customization and fast checkout
+* Prefer real-time order updates to reduce uncertainty
 
 ---
 
 ## f) Features and Functionalities
-<p align="justify"> The ChikiBite app provides a seamless and convenient food ordering experience through several core modules. Each module is designed with specific interactions and UI components to ensure usability, efficiency, and a responsive interface. </p>
+<p align="justify"> ChikiBite will be developed as a mobile application using Flutter, targeting both Android and iOS platforms. This platform selected because the target users are active smartphone users who commonly use Android and iOS devices for food ordering. Furtheremore, Flutter enables cross-platform development, allowing a single codebase to support both platforms efficiently. Flutter provides a rich set of widgets and strong performance, enabling a responsive and modern user interface.</p>
 
 <h3>Core Features: </h3>
 
@@ -86,9 +99,9 @@ ChikiBite – Food Ordering Mobile Application
 
 **UI Components & Interactions:**
 
-* Buttons: Add to cart, Checkout, Login/Register
+* Buttons: Add to cart, checkout, login/register
 * Lists/Grids: Menu items, categories
-* Forms: Login, Address input, Payment
+* Forms: Login, address input, payment
 * Feedback: Toast messages, Loading indicators
 
 ---
@@ -142,15 +155,10 @@ ChikiBite – Food Ordering Mobile Application
 ---
 
 ## k) References
-
-* Flutter documentation: 
-Flutter. (2024). Flutter documentation. Docs.flutter.dev. https://docs.flutter.dev/
-* Firebase Firestore Documentation:
-Firebase. (2019). Cloud Firestore  |  Firebase. Firebase. https://firebase.google.com/docs/firestore
-* Flutter UI Design Inspirations:
-Dribble . (n.d.). Flutter [Review of Flutter]. Flutter; Dribble. https://dribbble.com/tags/flutter
-* Provider State Management:
-provider | Flutter Package. (n.d.). Dart Packages. https://pub.dev/packages/provider
+* Flutter. (2024). Flutter documentation. Flutter Developer Documentation. https://docs.flutter.dev/
+* Firebase. (2019). Cloud Firestore documentation. Firebase. https://firebase.google.com/docs/firestore
+* Dribbble. (n.d.). Flutter UI design inspirations. https://dribbble.com/tags/flutter
+* Dart. (n.d.). Provider: State management for Flutter. Pub.dev. https://pub.dev/packages/provider
 
 
 ---
