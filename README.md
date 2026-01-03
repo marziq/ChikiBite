@@ -18,7 +18,7 @@ ChikiBite – Food Ordering Mobile Application
 
 ## c) Introduction
 
-<p align="justify"> ChikiBite is a mobile application developed to provide users with a convenient and efficient way to order food and beverages directly from the ChikiBite restaurant. The application simplifies the entire food ordering process, allowing users to browse menus, customize their orders and make secure payments directly through the app. Users can choose between delivery and pickup options, ensuring flexibility based on their preferences. In addition, ChikiBite includes real-time order tracking, allowing users to monitor the status of their orders from preparation to delivery. The app also rewards users with points for each purchase, which can be redeemed for free items, encouraging frequent usage and engagement. Overall, ChikiBite aims to deliver a smooth, user-friendly, and rewarding experience for its customers.</p>
+<p align="justify"> ChikiBite is a mobile application developed to provide users with a convenient and efficient way to order food and beverages directly from the ChikiBite restaurant. The application simplifies the entire food ordering process, allowing users to browse menus, customize their orders and make secure payments directly through the app. Users can choose between delivery and pickup options, ensuring flexibility based on their preferences. In addition, ChikiBite includes real-time order tracking, allowing users to monitor the status of their orders from preparation to delivery. The app also rewards users with points for each purchase, which can be redeemed for free items, encouraging frequent use and engagement. </p>
 
 ---
 
