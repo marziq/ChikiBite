@@ -12,7 +12,12 @@
           "package_name": "com.example.chikibite"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "886717149088-r1f8hgcvkafls3jmuq8e942trgho777l.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyD6_4gtDQ8llIfBFflm6d_7fujEU-uqi0c"
@@ -20,7 +25,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "886717149088-r1f8hgcvkafls3jmuq8e942trgho777l.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
