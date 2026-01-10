@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'food_detail.dart';
+import '../data/menu_data.dart';
 
 class MenuScreen extends StatelessWidget {
   const MenuScreen({super.key});
@@ -47,12 +48,9 @@ class MenuScreen extends StatelessWidget {
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemCount: 10,
+              itemCount: menuItems.length,
               itemBuilder: (context, index) {
-                final foodName = 'Chicken Burger ${index + 1}';
-                final price = (index + 1) * 5.0;
-                final description =
-                    'Delicious chicken burger with fresh vegetables and special sauce';
+                final item = menuItems[index];
 
                 return GestureDetector(
                   onTap: () {
@@ -60,10 +58,11 @@ class MenuScreen extends StatelessWidget {
                       context,
                       MaterialPageRoute(
                         builder: (context) => FoodDetailScreen(
-                          foodName: foodName,
-                          description: description,
-                          price: price,
-                          category: 'Burgers',
+                          foodName: item.name,
+                          description: item.description,
+                          price: item.price,
+                          category: item.category,
+                          imagePath: item.imagePath,
                           rating: 4.5 + (index % 3) * 0.2,
                           reviews: 100 + (index * 10),
                         ),
@@ -98,10 +97,22 @@ class MenuScreen extends StatelessWidget {
                               bottomLeft: Radius.circular(16),
                             ),
                           ),
-                          child: Icon(
-                            Icons.fastfood,
-                            size: 50,
-                            color: Colors.orange[700],
+                          child: ClipRRect(
+                            borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(16),
+                              bottomLeft: Radius.circular(16),
+                            ),
+                            child: Image.asset(
+                              item.imagePath,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Icon(
+                                  Icons.fastfood,
+                                  size: 50,
+                                  color: Colors.orange[700],
+                                );
+                              },
+                            ),
                           ),
                         ),
 
@@ -113,13 +124,13 @@ class MenuScreen extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  foodName,
+                                  item.name,
                                   style: Theme.of(context).textTheme.titleMedium
                                       ?.copyWith(fontWeight: FontWeight.bold),
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  description,
+                                  item.description,
                                   style: Theme.of(context).textTheme.bodySmall
                                       ?.copyWith(color: Colors.grey[600]),
                                   maxLines: 2,
@@ -131,7 +142,7 @@ class MenuScreen extends StatelessWidget {
                                       MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
-                                      'RM ${price.toStringAsFixed(2)}',
+                                      'RM ${item.price.toStringAsFixed(2)}',
                                       style: TextStyle(
                                         color: Colors.orange[800],
                                         fontWeight: FontWeight.bold,
@@ -155,7 +166,7 @@ class MenuScreen extends StatelessWidget {
                                           ).showSnackBar(
                                             SnackBar(
                                               content: Text(
-                                                '$foodName added to cart',
+                                                '${item.name} added to cart',
                                                 style: const TextStyle(
                                                   color: Colors.white,
                                                 ),

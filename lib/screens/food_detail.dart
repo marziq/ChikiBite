@@ -96,12 +96,36 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
                     end: Alignment.bottomRight,
                   ),
                 ),
-                child: Center(
-                  child: Icon(
-                    Icons.fastfood,
-                    size: 150,
-                    color: Colors.orange[700],
-                  ),
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    Image.asset(
+                      widget.imagePath,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Center(
+                          child: Icon(
+                            Icons.fastfood,
+                            size: 150,
+                            color: Colors.orange[700],
+                          ),
+                        );
+                      },
+                    ),
+                    // Optional: Add a semi-transparent overlay for better text contrast
+                    Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.transparent,
+                            Colors.black.withOpacity(0.1),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
