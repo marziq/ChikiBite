@@ -21,21 +21,18 @@ class FirestoreService {
 
   // --- Menu ---
   Future<DocumentReference> addMenuItem(Map<String, dynamic> item) {
-    return _db.collection('menu').add({
+    return _db.collection('Menu').add({
       ...item,
       'createdAt': FieldValue.serverTimestamp(),
     });
   }
 
   Future<void> updateMenuItem(String id, Map<String, dynamic> data) {
-    return _db.collection('menu').doc(id).update(data);
+    return _db.collection('Menu').doc(id).update(data);
   }
 
   Stream<QuerySnapshot> menuStream({bool onlyAvailable = true}) {
-    final coll = _db.collection('menu');
-    if (onlyAvailable) {
-      return coll.where('available', isEqualTo: true).snapshots();
-    }
+    final coll = _db.collection('Menu');
     return coll.snapshots();
   }
 

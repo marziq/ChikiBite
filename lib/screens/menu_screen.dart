@@ -80,7 +80,16 @@ class _MenuScreenState extends State<MenuScreen> {
 
                 if (snapshot.hasError) {
                   return Center(
-                    child: Text('Error: ${snapshot.error}'),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text('Error loading menu:'),
+                        Text(
+                          snapshot.error.toString(),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
                   );
                 }
 
@@ -92,8 +101,13 @@ class _MenuScreenState extends State<MenuScreen> {
 
                 // Convert docs to MenuItem objects
                 final items = snapshot.data!.docs
-                    .map((doc) => MenuItem.fromDocument(doc))
+                    .map((doc) {
+                      print('Document: ${doc.id}, Data: ${doc.data()}');
+                      return MenuItem.fromDocument(doc);
+                    })
                     .toList();
+                
+                print('Total items fetched: ${items.length}');
 
                 // Filter by search query
                 final filteredItems = items
@@ -123,8 +137,8 @@ class _MenuScreenState extends State<MenuScreen> {
                               foodName: item.name,
                               description: item.description,
                               price: item.price,
-                              category: item.categoryId,
-                              imagePath: item.imageUrl,
+                              category: item.category,
+                              imagePath: item.imagePath,
                               rating: 4.5 + (index % 3) * 0.2,
                               reviews: 100 + (index * 10),
                             ),
@@ -164,9 +178,9 @@ class _MenuScreenState extends State<MenuScreen> {
                                   topLeft: Radius.circular(16),
                                   bottomLeft: Radius.circular(16),
                                 ),
-                                child: item.imageUrl.startsWith('http')
+                                child: item.imagePath.startsWith('http')
                                     ? Image.network(
-                                        item.imageUrl,
+                                        item.imagePath,
                                         fit: BoxFit.cover,
                                         errorBuilder:
                                             (context, error, stackTrace) {
@@ -178,7 +192,7 @@ class _MenuScreenState extends State<MenuScreen> {
                                         },
                                       )
                                     : Image.asset(
-                                        item.imageUrl,
+                                        item.imagePath,
                                         fit: BoxFit.cover,
                                         errorBuilder:
                                             (context, error, stackTrace) {
