@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
+import '../services/profile_service.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -32,10 +33,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
         _emailCtrl.text.trim(),
         _passwordCtrl.text,
       );
+      
+      // Update display name in Firebase Auth
       if (_nameCtrl.text.trim().isNotEmpty) {
         await cred.user?.updateDisplayName(_nameCtrl.text.trim());
         await cred.user?.reload();
       }
+      
+      // Create user document in Firestore
+      if (cred.user != null) {
+        await profileService.createUserProfile(
+          uid: cred.user!.uid,
+          name: _nameCtrl.text.trim(),
+          email: _emailCtrl.text.trim(),
+        );
+      }
+      
       if (mounted) Navigator.pop(context);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(

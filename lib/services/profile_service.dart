@@ -5,6 +5,25 @@ import 'auth_service.dart';
 class ProfileService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
 
+  /// Create a new user profile document in Firestore on registration
+  Future<void> createUserProfile({
+    required String uid,
+    required String name,
+    required String email,
+    String? phone,
+  }) async {
+    await _db.collection('users').doc(uid).set({
+      'uid': uid,
+      'name': name,
+      'email': email,
+      'phone': phone,
+      'points': 0,
+      'addresses': [],
+      'favoriteItems': [],
+      'createdAt': FieldValue.serverTimestamp(),
+    }, SetOptions(merge: true));
+  }
+
   // Get current user profile
   Stream<app_user.User?> getUserProfile(String uid) {
     return _db.collection('users').doc(uid).snapshots().map((doc) {
