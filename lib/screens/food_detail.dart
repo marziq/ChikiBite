@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../services/cart_service.dart';
 
 class FoodDetailScreen extends StatefulWidget {
+  final String itemId;
   final String foodName;
   final String description;
   final double price;
@@ -12,6 +15,7 @@ class FoodDetailScreen extends StatefulWidget {
 
   const FoodDetailScreen({
     super.key,
+    required this.itemId,
     required this.foodName,
     required this.description,
     required this.price,
@@ -455,7 +459,15 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
                     padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
                   onPressed: () {
-                    // Add to cart logic
+                    // Add to cart using CartService
+                    final cart = Provider.of<CartService>(context, listen: false);
+                    cart.addItem(
+                      itemId: widget.itemId,
+                      name: widget.foodName,
+                      price: widget.price,
+                      imagePath: widget.imagePath,
+                      quantity: quantity,
+                    );
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text(
@@ -466,6 +478,7 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
                         duration: const Duration(seconds: 2),
                       ),
                     );
+                    Navigator.pop(context);
                   },
                   child: const Text(
                     'Add to Cart',

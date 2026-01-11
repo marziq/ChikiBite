@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:provider/provider.dart';
 import 'food_detail.dart';
 import '../models/menu.dart';
 import '../services/firestore_service.dart';
+import '../services/cart_service.dart';
 
 class MenuScreen extends StatefulWidget {
 const MenuScreen({super.key});
@@ -134,6 +136,7 @@ class _MenuScreenState extends State<MenuScreen> {
                           context,
                           MaterialPageRoute(
                             builder: (context) => FoodDetailScreen(
+                              itemId: item.itemID,
                               foodName: item.name,
                               description: item.description,
                               price: item.price,
@@ -256,7 +259,14 @@ class _MenuScreenState extends State<MenuScreen> {
                                               color: Colors.white,
                                             ),
                                             onPressed: () {
-                                              // Add to cart functionality
+                                              // Add to cart using CartService
+                                              final cart = Provider.of<CartService>(context, listen: false);
+                                              cart.addItem(
+                                                itemId: item.itemID,
+                                                name: item.name,
+                                                price: item.price,
+                                                imagePath: item.imagePath,
+                                              );
                                               ScaffoldMessenger.of(context)
                                                   .showSnackBar(
                                                 SnackBar(

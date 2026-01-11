@@ -203,6 +203,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             context,
                             MaterialPageRoute(
                               builder: (context) => FoodDetailScreen(
+                                itemId: 'home_popular_${item.name.toLowerCase().replaceAll(' ', '_')}',
                                 foodName: item.name,
                                 description: item.description,
                                 price: item.price,
@@ -327,6 +328,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             context,
                             MaterialPageRoute(
                               builder: (context) => FoodDetailScreen(
+                                itemId: 'home_recommended_${item.name.toLowerCase().replaceAll(' ', '_')}',
                                 foodName: item.name,
                                 description: item.description,
                                 price: item.price,
