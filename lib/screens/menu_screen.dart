@@ -2,11 +2,37 @@ import 'package:flutter/material.dart';
 import 'food_detail.dart';
 import '../data/menu_data.dart';
 
-class MenuScreen extends StatelessWidget {
+class MenuScreen extends StatefulWidget {
   const MenuScreen({super.key});
 
   @override
+  State<MenuScreen> createState() => _MenuScreenState();
+}
+
+class _MenuScreenState extends State<MenuScreen> {
+  String selectedCategory = 'All';
+  final List<String> categories = [
+    'All',
+    'Burgers',
+    'Chickens',
+    'Desserts',
+    'Drinks',
+    'Snacks',
+  ];
+
+  List<MenuItem> getFilteredItems() {
+    if (selectedCategory == 'All') {
+      return menuItems;
+    }
+    return menuItems
+        .where((item) => item.category == selectedCategory)
+        .toList();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final filteredItems = getFilteredItems();
+
     return SafeArea(
       child: Column(
         children: [
@@ -44,13 +70,58 @@ class MenuScreen extends StatelessWidget {
             ),
           ),
 
+          // Category Filter
+          SizedBox(
+            height: 50,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              itemCount: categories.length,
+              itemBuilder: (context, index) {
+                final category = categories[index];
+                final isSelected = selectedCategory == category;
+
+                return GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      selectedCategory = category;
+                    });
+                  },
+                  child: Container(
+                    margin: const EdgeInsets.only(right: 12),
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    decoration: BoxDecoration(
+                      color: isSelected ? Colors.orange[800] : Colors.grey[200],
+                      borderRadius: BorderRadius.circular(20),
+                      border: isSelected
+                          ? null
+                          : Border.all(color: Colors.grey[300]!),
+                    ),
+                    child: Center(
+                      child: Text(
+                        category,
+                        style: TextStyle(
+                          color: isSelected ? Colors.white : Colors.grey[800],
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+
+          const SizedBox(height: 16),
+
           // Menu List
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemCount: menuItems.length,
+              itemCount: filteredItems.length,
               itemBuilder: (context, index) {
-                final item = menuItems[index];
+                final item = filteredItems[index];
 
                 return GestureDetector(
                   onTap: () {
