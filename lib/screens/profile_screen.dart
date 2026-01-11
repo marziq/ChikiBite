@@ -3,6 +3,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../services/auth_service.dart';
 import 'login_screen.dart';
 import 'register_screen.dart';
+import 'personal_information_screen.dart';
+import 'delivery_address_screen.dart';
+import 'payment_methods_screen.dart';
+import 'order_history_screen.dart';
+import 'favorites_screen.dart';
+import 'notifications_settings_screen.dart';
+import 'language_selection_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -353,21 +360,42 @@ class ProfileScreen extends StatelessWidget {
                   icon: Icons.person_outline,
                   title: 'Personal Information',
                   subtitle: 'Update your personal details',
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const PersonalInformationScreen(),
+                      ),
+                    );
+                  },
                 ),
                 _buildMenuItem(
                   context,
                   icon: Icons.location_on_outlined,
                   title: 'Delivery Address',
                   subtitle: 'Manage your addresses',
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const DeliveryAddressScreen(),
+                      ),
+                    );
+                  },
                 ),
                 _buildMenuItem(
                   context,
                   icon: Icons.payment_outlined,
                   title: 'Payment Methods',
                   subtitle: 'Add or remove payment cards',
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const PaymentMethodsScreen(),
+                      ),
+                    );
+                  },
                 ),
                 const SizedBox(height: 24),
 
@@ -379,14 +407,28 @@ class ProfileScreen extends StatelessWidget {
                   icon: Icons.shopping_bag_outlined,
                   title: 'Order History',
                   subtitle: 'View your past orders',
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const OrderHistoryScreen(),
+                      ),
+                    );
+                  },
                 ),
                 _buildMenuItem(
                   context,
                   icon: Icons.favorite_outline,
                   title: 'Favorites',
                   subtitle: 'Your favorite items',
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const FavoritesScreen(),
+                      ),
+                    );
+                  },
                 ),
                 const SizedBox(height: 24),
 
@@ -398,14 +440,28 @@ class ProfileScreen extends StatelessWidget {
                   icon: Icons.notifications_outlined,
                   title: 'Notifications',
                   subtitle: 'Manage notification settings',
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const NotificationsSettingsScreen(),
+                      ),
+                    );
+                  },
                 ),
                 _buildMenuItem(
                   context,
                   icon: Icons.language_outlined,
                   title: 'Language',
                   subtitle: 'English',
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const LanguageSelectionScreen(),
+                      ),
+                    );
+                  },
                 ),
                 _buildMenuItem(
                   context,
