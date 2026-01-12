@@ -6,7 +6,10 @@ import '../models/order.dart' as app_order;
 import 'checkout_screen.dart';
 
 class OrderScreen extends StatefulWidget {
-  const OrderScreen({super.key});
+  final int initialTab;
+  final bool showAppBar;
+
+  const OrderScreen({super.key, this.initialTab = 0, this.showAppBar = false});
 
   @override
   State<OrderScreen> createState() => _OrderScreenState();
@@ -14,7 +17,13 @@ class OrderScreen extends StatefulWidget {
 
 class _OrderScreenState extends State<OrderScreen> {
   // 0 = Active Orders, 1 = History
-  int _selectedTab = 0;
+  late int _selectedTab;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedTab = widget.initialTab;
+  }
 
   Color _getStatusColor(String status) {
     switch (status.toLowerCase()) {
@@ -74,133 +83,137 @@ class _OrderScreenState extends State<OrderScreen> {
   Widget build(BuildContext context) {
     final uid = firebase_auth.FirebaseAuth.instance.currentUser?.uid;
 
-    return SafeArea(
-      child: Stack(
-        children: [
-          Column(
-            children: [
-              // Header with tabs
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.1),
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: TextButton(
-                        onPressed: () {
-                          setState(() {
-                            _selectedTab = 0;
-                          });
-                        },
-                        style: TextButton.styleFrom(
-                          backgroundColor: _selectedTab == 0
-                              ? Colors.orange[800]
-                              : Colors.grey[200],
-                          foregroundColor: _selectedTab == 0
-                              ? Colors.white
-                              : Colors.grey[700],
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        child: const Text('Active Orders'),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: TextButton(
-                        onPressed: () {
-                          setState(() {
-                            _selectedTab = 1;
-                          });
-                        },
-                        style: TextButton.styleFrom(
-                          backgroundColor: _selectedTab == 1
-                              ? Colors.orange[800]
-                              : Colors.grey[200],
-                          foregroundColor: _selectedTab == 1
-                              ? Colors.white
-                              : Colors.grey[700],
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        child: const Text('History'),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [Colors.orange[400]!, Colors.orange[700]!],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: ElevatedButton.icon(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const CheckoutScreen(),
-                            ),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.transparent,
-                          shadowColor: Colors.transparent,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 8,
-                          ),
-                        ),
-                        icon: const Icon(
-                          Icons.shopping_cart,
-                          color: Colors.white,
-                          size: 18,
-                        ),
-                        label: const Text(
-                          'Cart',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              // Order List based on selected tab
-              Expanded(
-                child: uid == null
-                    ? _buildLoginPrompt()
-                    : _selectedTab == 0
-                        ? _buildActiveOrdersList(uid)
-                        : _buildHistoryList(uid),
+    final body = Column(
+      children: [
+        // Header with tabs
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.1),
+                blurRadius: 4,
+                offset: const Offset(0, 2),
               ),
             ],
           ),
-        ],
-      ),
+          child: Row(
+            children: [
+              Expanded(
+                child: TextButton(
+                  onPressed: () {
+                    setState(() {
+                      _selectedTab = 0;
+                    });
+                  },
+                  style: TextButton.styleFrom(
+                    backgroundColor: _selectedTab == 0
+                        ? Colors.orange[800]
+                        : Colors.grey[200],
+                    foregroundColor: _selectedTab == 0
+                        ? Colors.white
+                        : Colors.grey[700],
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text('Active Orders'),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: TextButton(
+                  onPressed: () {
+                    setState(() {
+                      _selectedTab = 1;
+                    });
+                  },
+                  style: TextButton.styleFrom(
+                    backgroundColor: _selectedTab == 1
+                        ? Colors.orange[800]
+                        : Colors.grey[200],
+                    foregroundColor: _selectedTab == 1
+                        ? Colors.white
+                        : Colors.grey[700],
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text('History'),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Colors.orange[400]!, Colors.orange[700]!],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const CheckoutScreen(),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.transparent,
+                    shadowColor: Colors.transparent,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
+                  ),
+                  icon: const Icon(
+                    Icons.shopping_cart,
+                    color: Colors.white,
+                    size: 18,
+                  ),
+                  label: const Text(
+                    'Cart',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        // Order List based on selected tab
+        Expanded(
+          child: uid == null
+              ? _buildLoginPrompt()
+              : _selectedTab == 0
+              ? _buildActiveOrdersList(uid)
+              : _buildHistoryList(uid),
+        ),
+      ],
     );
+
+    if (widget.showAppBar) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Orders'),
+          backgroundColor: Colors.orange[700],
+          foregroundColor: Colors.white,
+        ),
+        body: SafeArea(child: body),
+      );
+    }
+
+    return SafeArea(child: body);
   }
 
   Widget _buildLoginPrompt() {
@@ -208,11 +221,7 @@ class _OrderScreenState extends State<OrderScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.login,
-            size: 80,
-            color: Colors.grey[400],
-          ),
+          Icon(Icons.login, size: 80, color: Colors.grey[400]),
           const SizedBox(height: 16),
           Text(
             'Please login to view orders',
@@ -240,12 +249,16 @@ class _OrderScreenState extends State<OrderScreen> {
 
         // Filter for active orders (pending, preparing, delivering) client-side
         final activeStatuses = ['pending', 'preparing', 'delivering'];
-        var orders = snapshot.data?.docs
+        var orders =
+            snapshot.data?.docs
                 .map((doc) => app_order.Order.fromDocument(doc))
-                .where((order) => activeStatuses.contains(order.status.toLowerCase()))
+                .where(
+                  (order) =>
+                      activeStatuses.contains(order.status.toLowerCase()),
+                )
                 .toList() ??
             [];
-        
+
         // Sort by createdAt descending
         orders.sort((a, b) {
           if (a.createdAt == null && b.createdAt == null) return 0;
@@ -286,12 +299,16 @@ class _OrderScreenState extends State<OrderScreen> {
 
         // Filter for history orders (completed, cancelled) client-side
         final historyStatuses = ['completed', 'cancelled'];
-        var orders = snapshot.data?.docs
+        var orders =
+            snapshot.data?.docs
                 .map((doc) => app_order.Order.fromDocument(doc))
-                .where((order) => historyStatuses.contains(order.status.toLowerCase()))
+                .where(
+                  (order) =>
+                      historyStatuses.contains(order.status.toLowerCase()),
+                )
                 .toList() ??
             [];
-        
+
         // Sort by createdAt descending
         orders.sort((a, b) {
           if (a.createdAt == null && b.createdAt == null) return 0;
@@ -320,11 +337,7 @@ class _OrderScreenState extends State<OrderScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.receipt_long_outlined,
-            size: 80,
-            color: Colors.grey[400],
-          ),
+          Icon(Icons.receipt_long_outlined, size: 80, color: Colors.grey[400]),
           const SizedBox(height: 16),
           Text(
             'No active orders',
@@ -344,9 +357,7 @@ class _OrderScreenState extends State<OrderScreen> {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => const CheckoutScreen(),
-                ),
+                MaterialPageRoute(builder: (context) => const CheckoutScreen()),
               );
             },
             style: ElevatedButton.styleFrom(
@@ -355,10 +366,7 @@ class _OrderScreenState extends State<OrderScreen> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
               ),
-              padding: const EdgeInsets.symmetric(
-                horizontal: 24,
-                vertical: 12,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             ),
             icon: const Icon(Icons.shopping_cart),
             label: const Text('Order Now'),
@@ -373,11 +381,7 @@ class _OrderScreenState extends State<OrderScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.history,
-            size: 80,
-            color: Colors.grey[400],
-          ),
+          Icon(Icons.history, size: 80, color: Colors.grey[400]),
           const SizedBox(height: 16),
           Text(
             'No order history',
@@ -430,18 +434,16 @@ class _OrderScreenState extends State<OrderScreen> {
                 children: [
                   Text(
                     'Order #${order.id.length > 8 ? order.id.substring(0, 8) : order.id}',
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleMedium
-                        ?.copyWith(fontWeight: FontWeight.bold),
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     _formatDate(order.createdAt),
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodySmall
-                        ?.copyWith(color: Colors.grey[600]),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
                   ),
                 ],
               ),
@@ -456,11 +458,7 @@ class _OrderScreenState extends State<OrderScreen> {
                 ),
                 child: Row(
                   children: [
-                    Icon(
-                      statusIcon,
-                      size: 16,
-                      color: statusColor,
-                    ),
+                    Icon(statusIcon, size: 16, color: statusColor),
                     const SizedBox(width: 6),
                     Text(
                       order.status.toUpperCase(),
@@ -486,16 +484,18 @@ class _OrderScreenState extends State<OrderScreen> {
             ),
             child: Column(
               children: [
-                ...order.items.map((item) => Column(
-                      children: [
-                        _buildOrderItem(
-                          item.name,
-                          '${item.quantity}x',
-                          'RM ${(item.price * item.quantity).toStringAsFixed(2)}',
-                        ),
-                        if (order.items.last != item) const Divider(height: 20),
-                      ],
-                    )),
+                ...order.items.map(
+                  (item) => Column(
+                    children: [
+                      _buildOrderItem(
+                        item.name,
+                        '${item.quantity}x',
+                        'RM ${(item.price * item.quantity).toStringAsFixed(2)}',
+                      ),
+                      if (order.items.last != item) const Divider(height: 20),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
@@ -510,17 +510,16 @@ class _OrderScreenState extends State<OrderScreen> {
                 children: [
                   Text(
                     'Total',
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyMedium
-                        ?.copyWith(color: Colors.grey[600]),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
                   ),
                   Text(
                     'RM ${order.total.toStringAsFixed(2)}',
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.orange[800],
-                        ),
+                      fontWeight: FontWeight.bold,
+                      color: Colors.orange[800],
+                    ),
                   ),
                 ],
               ),
@@ -580,18 +579,16 @@ class _OrderScreenState extends State<OrderScreen> {
                 children: [
                   Text(
                     'Order #${order.id.length > 8 ? order.id.substring(0, 8) : order.id}',
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleMedium
-                        ?.copyWith(fontWeight: FontWeight.bold),
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     _formatDate(order.createdAt),
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodySmall
-                        ?.copyWith(color: Colors.grey[600]),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
                   ),
                 ],
               ),
@@ -606,11 +603,7 @@ class _OrderScreenState extends State<OrderScreen> {
                 ),
                 child: Row(
                   children: [
-                    Icon(
-                      statusIcon,
-                      size: 16,
-                      color: statusColor,
-                    ),
+                    Icon(statusIcon, size: 16, color: statusColor),
                     const SizedBox(width: 6),
                     Text(
                       order.status.toUpperCase(),
@@ -645,7 +638,9 @@ class _OrderScreenState extends State<OrderScreen> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                ...order.items.take(2).map(
+                ...order.items
+                    .take(2)
+                    .map(
                       (item) => Padding(
                         padding: const EdgeInsets.symmetric(vertical: 2),
                         child: Text(
@@ -683,17 +678,16 @@ class _OrderScreenState extends State<OrderScreen> {
                 children: [
                   Text(
                     'Total',
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyMedium
-                        ?.copyWith(color: Colors.grey[600]),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
                   ),
                   Text(
                     'RM ${order.total.toStringAsFixed(2)}',
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.orange[800],
-                        ),
+                      fontWeight: FontWeight.bold,
+                      color: Colors.orange[800],
+                    ),
                   ),
                 ],
               ),
@@ -878,10 +872,7 @@ class _OrderScreenState extends State<OrderScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        'Points Used',
-                        style: TextStyle(fontSize: 14),
-                      ),
+                      const Text('Points Used', style: TextStyle(fontSize: 14)),
                       Text(
                         '-${order.pointsUsed} points',
                         style: TextStyle(
