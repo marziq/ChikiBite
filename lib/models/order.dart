@@ -105,7 +105,8 @@ class Order {
         [];
 
     return Order(
-      id: (map['id'] as String?) ?? docId ?? '',
+      // Prioritize docId over map id, since map id might be empty string
+      id: docId ?? (map['id'] as String?) ?? '',
       userId: map['userId'] as String? ?? '',
       items: itemsList,
       total: (map['total'] as num?)?.toDouble() ?? 0.0,

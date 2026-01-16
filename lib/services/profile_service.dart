@@ -234,7 +234,83 @@ class ProfileService {
   Future<void> updateLanguage(String uid, String language) async {
     await updateUserProfile(uid, {'language': language});
   }
+
+  // ============== Points Management ==============
+
+  /// Add points to user account (e.g., after order completion)
+  /// RM1 = 1 point
+  Future<void> addPoints(String uid, int points, {String? reason}) async {
+    if (points <= 0) return;
+    
+    await _db.collection('users').doc(uid).update({
+      'points': FieldValue.increment(points),
+    });
+
+    // Record points transaction for history
+    await _db.collection('users').doc(uid).collection('pointsHistory').add({
+      'type': 'earned',
+      'amount': points,
+      'reason': reason ?? 'Order purchase',
+      'createdAt': FieldValue.serverTimestamp(),
+    });
+  }
+
+  /// Deduct points from user account (e.g., for redemption)
+  Future<bool> deductPoints(String uid, int points, {String? reason}) async {
+    if (points <= 0) return false;
+
+    // Check if user has enough points
+    final user = await getUserProfileOnce(uid);
+    final currentPoints = user?.points ?? 0;
+    
+    if (currentPoints < points) {
+      return false; // Not enough points
+    }
+
+    await _db.collection('users').doc(uid).update({
+      'points': FieldValue.increment(-points),
+    });
+
+    // Record points transaction for history
+    await _db.collection('users').doc(uid).collection('pointsHistory').add({
+      'type': 'redeemed',
+      'amount': -points,
+      'reason': reason ?? 'Points redemption',
+      'createdAt': FieldValue.serverTimestamp(),
+    });
+
+    return true;
+  }
+
+  /// Get current points balance
+  Future<int> getPointsBalance(String uid) async {
+    final user = await getUserProfileOnce(uid);
+    return user?.points ?? 0;
+  }
+
+  /// Get points history stream
+  Stream<List<Map<String, dynamic>>> getPointsHistory(String uid) {
+    return _db
+        .collection('users')
+        .doc(uid)
+        .collection('pointsHistory')
+        .orderBy('createdAt', descending: true)
+        .limit(20)
+        .snapshots()
+        .map((snapshot) => snapshot.docs
+            .map((doc) => {
+                  'id': doc.id,
+                  ...doc.data(),
+                })
+            .toList());
+  }
+
+  /// Calculate points for an order total (RM1 = 1 point)
+  static int calculatePointsForOrder(double orderTotal) {
+    return orderTotal.floor(); // Round down to nearest RM
+  }
 }
 
 // Singleton instance
 final profileService = ProfileService();
+

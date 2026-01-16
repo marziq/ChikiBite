@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
-import 'package:cloud_firestore/cloud_firestore.dart';
 import '../services/cart_service.dart';
 import '../services/order_service.dart';
+import '../services/profile_service.dart';
+import '../services/promo_code_service.dart';
 import '../models/order.dart' as app_order;
+import '../models/promo_code.dart';
 
 class CheckoutScreen extends StatefulWidget {
   const CheckoutScreen({super.key});
@@ -16,21 +18,65 @@ class CheckoutScreen extends StatefulWidget {
 class _CheckoutScreenState extends State<CheckoutScreen> {
   String selectedPaymentMethod = 'card';
   String selectedDelivery = 'home';
-  bool usePromoCode = false;
   bool _isPlacingOrder = false;
+  bool _isLoadingAddresses = true;
+  bool _isValidatingPromo = false;
+  List<Map<String, dynamic>> _userAddresses = [];
+  Map<String, dynamic>? _selectedAddress;
   TextEditingController promoController = TextEditingController();
-  TextEditingController addressController = TextEditingController();
+  TextEditingController newAddressController = TextEditingController();
+  
+  // Promo code state
+  PromoCode? _appliedPromoCode;
+  double _promoDiscount = 0;
+  String? _promoErrorMessage;
+  bool _isFreeDelivery = false;
 
   @override
   void initState() {
     super.initState();
-    addressController.text = '123 Jalan Merdeka, 50150 Kuala Lumpur';
+    _loadUserAddresses();
+    // Seed promo codes if they don't exist
+    promoCodeService.seedPromoCodes();
+  }
+
+  Future<void> _loadUserAddresses() async {
+    final user = firebase_auth.FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      try {
+        final userProfile = await profileService.getUserProfileOnce(user.uid);
+        if (mounted) {
+          setState(() {
+            _userAddresses = userProfile?.addresses ?? [];
+            // Select default address or first address
+            _selectedAddress = _userAddresses.firstWhere(
+              (addr) => addr['isDefault'] == true,
+              orElse: () => _userAddresses.isNotEmpty ? _userAddresses.first : {},
+            );
+            if (_selectedAddress?.isEmpty ?? true) {
+              _selectedAddress = null;
+            }
+            _isLoadingAddresses = false;
+          });
+        }
+      } catch (e) {
+        if (mounted) {
+          setState(() {
+            _isLoadingAddresses = false;
+          });
+        }
+      }
+    } else {
+      setState(() {
+        _isLoadingAddresses = false;
+      });
+    }
   }
 
   @override
   void dispose() {
     promoController.dispose();
-    addressController.dispose();
+    newAddressController.dispose();
     super.dispose();
   }
 
@@ -43,11 +89,15 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   }
 
   double calculateDeliveryFee() {
-    return selectedDelivery == 'pickup' ? 0.0 : 3.50;
+    if (selectedDelivery == 'pickup') return 0.0;
+    // Free delivery from promo code
+    if (_isFreeDelivery) return 0.0;
+    return 3.50;
   }
 
   double calculatePromoDiscount(double subtotal) {
-    return usePromoCode ? subtotal * 0.1 : 0; // 10% discount
+    // Use the validated promo discount
+    return _promoDiscount;
   }
 
   double calculateTotal(CartService cart) {
@@ -56,6 +106,62 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     final deliveryFee = calculateDeliveryFee();
     final promoDiscount = calculatePromoDiscount(subtotal);
     return subtotal + tax + deliveryFee - promoDiscount;
+  }
+
+  Future<void> _applyPromoCode(double subtotal) async {
+    final code = promoController.text.trim();
+    if (code.isEmpty) {
+      setState(() {
+        _promoErrorMessage = 'Please enter a promo code';
+      });
+      return;
+    }
+
+    final user = firebase_auth.FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      setState(() {
+        _promoErrorMessage = 'Please login to use promo codes';
+      });
+      return;
+    }
+
+    setState(() {
+      _isValidatingPromo = true;
+      _promoErrorMessage = null;
+    });
+
+    final result = await promoCodeService.validatePromoCode(
+      code: code,
+      userId: user.uid,
+      subtotal: subtotal,
+    );
+
+    if (mounted) {
+      setState(() {
+        _isValidatingPromo = false;
+        if (result.isValid && result.promoCode != null) {
+          _appliedPromoCode = result.promoCode;
+          _promoDiscount = result.discountAmount;
+          _isFreeDelivery = result.promoCode!.discountType == DiscountType.freeDelivery;
+          _promoErrorMessage = null;
+        } else {
+          _appliedPromoCode = null;
+          _promoDiscount = 0;
+          _isFreeDelivery = false;
+          _promoErrorMessage = result.errorMessage;
+        }
+      });
+    }
+  }
+
+  void _removePromoCode() {
+    setState(() {
+      _appliedPromoCode = null;
+      _promoDiscount = 0;
+      _isFreeDelivery = false;
+      _promoErrorMessage = null;
+      promoController.clear();
+    });
   }
 
   String _getPaymentMethodName(String method) {
@@ -70,6 +176,159 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         return 'Online Banking';
       default:
         return method;
+    }
+  }
+
+  String _getFormattedAddress(Map<String, dynamic> address) {
+    final parts = <String>[];
+    if (address['street'] != null && address['street'].toString().isNotEmpty) {
+      parts.add(address['street']);
+    }
+    if (address['city'] != null && address['city'].toString().isNotEmpty) {
+      parts.add(address['city']);
+    }
+    if (address['state'] != null && address['state'].toString().isNotEmpty) {
+      parts.add(address['state']);
+    }
+    if (address['postalCode'] != null && address['postalCode'].toString().isNotEmpty) {
+      parts.add(address['postalCode']);
+    }
+    return parts.isNotEmpty ? parts.join(', ') : 'No address details';
+  }
+
+  Future<void> _showAddAddressDialog() async {
+    final streetController = TextEditingController();
+    final cityController = TextEditingController();
+    final stateController = TextEditingController();
+    final postalCodeController = TextEditingController();
+    final labelController = TextEditingController();
+
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(
+          'Add New Address',
+          style: TextStyle(
+            color: Colors.orange[800],
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: labelController,
+                decoration: InputDecoration(
+                  labelText: 'Label (e.g., Home, Office)',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  prefixIcon: const Icon(Icons.label_outline),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: streetController,
+                decoration: InputDecoration(
+                  labelText: 'Street Address *',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  prefixIcon: const Icon(Icons.home_outlined),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: cityController,
+                decoration: InputDecoration(
+                  labelText: 'City *',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  prefixIcon: const Icon(Icons.location_city),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: stateController,
+                decoration: InputDecoration(
+                  labelText: 'State',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  prefixIcon: const Icon(Icons.map_outlined),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: postalCodeController,
+                decoration: InputDecoration(
+                  labelText: 'Postal Code',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  prefixIcon: const Icon(Icons.pin_drop_outlined),
+                ),
+                keyboardType: TextInputType.number,
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(
+              'Cancel',
+              style: TextStyle(color: Colors.grey[600]),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              if (streetController.text.isEmpty || cityController.text.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Street and City are required'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+                return;
+              }
+              Navigator.pop(context, true);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.orange[800],
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Add'),
+          ),
+        ],
+      ),
+    );
+
+    if (result == true) {
+      final user = firebase_auth.FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        final newAddress = {
+          'label': labelController.text.isEmpty ? 'Home' : labelController.text,
+          'street': streetController.text,
+          'city': cityController.text,
+          'state': stateController.text,
+          'postalCode': postalCodeController.text,
+        };
+
+        await profileService.addAddress(user.uid, newAddress);
+        await _loadUserAddresses();
+        
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('Address added successfully'),
+              backgroundColor: Colors.green[700],
+            ),
+          );
+        }
+      }
     }
   }
 
@@ -96,6 +355,17 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       return;
     }
 
+    // Validate address for delivery orders
+    if (selectedDelivery == 'home' && _selectedAddress == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please add a delivery address'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
     setState(() {
       _isPlacingOrder = true;
     });
@@ -116,13 +386,44 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         items: orderItems,
         total: calculateTotal(cart),
         status: 'pending',
-        deliveryAddress: addressController.text,
+        deliveryAddress: selectedDelivery == 'pickup' 
+            ? 'Pickup from store' 
+            : _getFormattedAddress(_selectedAddress!),
         paymentMethod: _getPaymentMethodName(selectedPaymentMethod),
         createdAt: DateTime.now(),
       );
 
-      // Save to Firestore
-      await orderService.createOrder(order);
+      // Save to Firestore and get the order ID
+      final orderId = await orderService.createOrder(order);
+
+      // Record promo code usage if one was applied
+      if (_appliedPromoCode != null) {
+        await promoCodeService.recordPromoUsage(
+          promoCodeId: _appliedPromoCode!.id,
+          userId: user.uid,
+          orderId: orderId,
+          discountApplied: _promoDiscount,
+        );
+      }
+
+      // Start automatic status progression (updates every 10 seconds)
+      final isPickup = selectedDelivery == 'pickup';
+      orderService.startAutomaticStatusProgression(
+        orderId,
+        isPickup: isPickup,
+        intervalSeconds: 10,
+      );
+
+      // Add reward points (RM1 = 1 point)
+      final orderTotal = calculateTotal(cart);
+      final pointsEarned = ProfileService.calculatePointsForOrder(orderTotal);
+      if (pointsEarned > 0) {
+        await profileService.addPoints(
+          user.uid,
+          pointsEarned,
+          reason: 'Order #${orderId.substring(0, 8)}',
+        );
+      }
 
       // Clear cart after successful order
       cart.clearCart();
@@ -130,12 +431,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text(
-              'Order placed successfully! 🎉',
-              style: TextStyle(color: Colors.white),
+            content: Text(
+              'Order placed successfully! 🎉 +$pointsEarned points earned!',
+              style: const TextStyle(color: Colors.white),
             ),
             backgroundColor: Colors.green[700],
-            duration: const Duration(seconds: 2),
+            duration: const Duration(seconds: 3),
           ),
         );
 
@@ -340,108 +641,14 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       // Promo Code Section
                       _buildSectionTitle('Promo Code'),
                       const SizedBox(height: 12),
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.orange[200]!),
-                        ),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: TextField(
-                                controller: promoController,
-                                decoration: InputDecoration(
-                                  hintText: 'Enter promo code',
-                                  hintStyle: TextStyle(color: Colors.grey[400]),
-                                  border: InputBorder.none,
-                                ),
-                              ),
-                            ),
-                            GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  usePromoCode = !usePromoCode;
-                                });
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 8,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: usePromoCode
-                                      ? Colors.orange[700]
-                                      : Colors.orange[100],
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Text(
-                                  usePromoCode ? 'Applied' : 'Apply',
-                                  style: TextStyle(
-                                    color: usePromoCode
-                                        ? Colors.white
-                                        : Colors.orange[800],
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 12,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                      _buildPromoCodeSection(subtotal),
 
                       const SizedBox(height: 24),
 
                       // Delivery Address Section
                       _buildSectionTitle('Delivery Address'),
                       const SizedBox(height: 12),
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.orange[200]!),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.location_on,
-                                  color: Colors.orange[800],
-                                  size: 20,
-                                ),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: TextField(
-                                    controller: addressController,
-                                    decoration: const InputDecoration(
-                                      border: InputBorder.none,
-                                      isDense: true,
-                                      contentPadding: EdgeInsets.zero,
-                                    ),
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 14,
-                                      color: Colors.black87,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 12),
-                            Text(
-                              selectedDelivery == 'pickup'
-                                  ? 'Ready for pickup in 15-20 minutes'
-                                  : 'Delivery in 30-40 minutes',
-                              style: TextStyle(color: Colors.grey[600], fontSize: 12),
-                            ),
-                          ],
-                        ),
-                      ),
+                      _buildDeliveryAddressSection(),
 
                       const SizedBox(height: 24),
 
@@ -615,11 +822,13 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                   ? 'RM ${deliveryFee.toStringAsFixed(2)}'
                                   : 'Free',
                             ),
-                            if (usePromoCode) ...[
+                            if (_appliedPromoCode != null && (promoDiscount > 0 || _isFreeDelivery)) ...[
                               const SizedBox(height: 12),
                               _buildPriceRow(
-                                'Promo Discount (10%)',
-                                '- RM ${promoDiscount.toStringAsFixed(2)}',
+                                'Promo (${_appliedPromoCode!.code})',
+                                promoDiscount > 0 
+                                    ? '- RM ${promoDiscount.toStringAsFixed(2)}'
+                                    : _isFreeDelivery ? 'Free Delivery' : '',
                                 isDiscount: true,
                               ),
                             ],
@@ -760,6 +969,389 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       ),
     );
   }
+
+  Widget _buildPromoCodeSection(double subtotal) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: _appliedPromoCode != null 
+              ? Colors.green[400]! 
+              : _promoErrorMessage != null 
+                  ? Colors.red[300]! 
+                  : Colors.orange[200]!,
+          width: _appliedPromoCode != null ? 2 : 1,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Applied promo code display
+          if (_appliedPromoCode != null) ...[
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.green[50],
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.check_circle, color: Colors.green[700], size: 20),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          _appliedPromoCode!.code,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.green[800],
+                            fontSize: 14,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          _appliedPromoCode!.description,
+                          style: TextStyle(
+                            color: Colors.green[700],
+                            fontSize: 12,
+                          ),
+                        ),
+                        if (_promoDiscount > 0) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            'You save: RM${_promoDiscount.toStringAsFixed(2)}',
+                            style: TextStyle(
+                              color: Colors.green[800],
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ],
+                        if (_isFreeDelivery) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            'Free Delivery Applied!',
+                            style: TextStyle(
+                              color: Colors.green[800],
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: _removePromoCode,
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      child: Icon(
+                        Icons.close,
+                        color: Colors.grey[600],
+                        size: 20,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ] else ...[
+            // Promo code input
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: promoController,
+                    textCapitalization: TextCapitalization.characters,
+                    decoration: InputDecoration(
+                      hintText: 'Enter promo code',
+                      hintStyle: TextStyle(color: Colors.grey[400]),
+                      border: InputBorder.none,
+                      isDense: true,
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                GestureDetector(
+                  onTap: _isValidatingPromo ? null : () => _applyPromoCode(subtotal),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 10,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.orange[800],
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: _isValidatingPromo
+                        ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            ),
+                          )
+                        : const Text(
+                            'Apply',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                            ),
+                          ),
+                  ),
+                ),
+              ],
+            ),
+            // Error message
+            if (_promoErrorMessage != null) ...[
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.red[50],
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.error_outline, color: Colors.red[700], size: 16),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        _promoErrorMessage!,
+                        style: TextStyle(
+                          color: Colors.red[700],
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ],
+        ],
+      ),
+    );
+  }
+
+
+  Widget _buildDeliveryAddressSection() {
+    // Show loading state
+    if (_isLoadingAddresses) {
+      return Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.orange[200]!),
+        ),
+        child: const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
+    // Show empty state with add button
+    if (_userAddresses.isEmpty) {
+      return Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.orange[200]!),
+        ),
+        child: Column(
+          children: [
+            Icon(
+              Icons.location_off_outlined,
+              size: 48,
+              color: Colors.grey[400],
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'No saved addresses',
+              style: TextStyle(
+                color: Colors.grey[600],
+                fontSize: 14,
+              ),
+            ),
+            const SizedBox(height: 12),
+            ElevatedButton.icon(
+              onPressed: _showAddAddressDialog,
+              icon: const Icon(Icons.add_location_alt, size: 18),
+              label: const Text('Add Address'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.orange[800],
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // Show address list with selection
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.orange[200]!),
+      ),
+      child: Column(
+        children: [
+          ..._userAddresses.map((address) {
+            final isSelected = _selectedAddress?['id'] == address['id'];
+            return GestureDetector(
+              onTap: () {
+                setState(() {
+                  _selectedAddress = address;
+                });
+              },
+              child: Container(
+                margin: const EdgeInsets.only(bottom: 8),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: isSelected ? Colors.orange[50] : Colors.grey[50],
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: isSelected ? Colors.orange[800]! : Colors.grey[300]!,
+                    width: isSelected ? 2 : 1,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      address['label']?.toString().toLowerCase() == 'office'
+                          ? Icons.work_outline
+                          : Icons.home_outlined,
+                      color: isSelected ? Colors.orange[800] : Colors.grey[600],
+                      size: 24,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Text(
+                                address['label']?.toString() ?? 'Address',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                  color: isSelected ? Colors.orange[800] : Colors.black87,
+                                ),
+                              ),
+                              if (address['isDefault'] == true) ...[
+                                const SizedBox(width: 8),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 6,
+                                    vertical: 2,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.orange[100],
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Text(
+                                    'Default',
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      color: Colors.orange[800],
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            _getFormattedAddress(address),
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 12,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (isSelected)
+                      Icon(
+                        Icons.check_circle,
+                        color: Colors.orange[800],
+                        size: 24,
+                      ),
+                  ],
+                ),
+              ),
+            );
+          }),
+          const SizedBox(height: 4),
+          // Add new address button
+          GestureDetector(
+            onTap: _showAddAddressDialog,
+            child: Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.grey[50],
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  color: Colors.grey[300]!,
+                  style: BorderStyle.solid,
+                ),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.add_location_alt_outlined,
+                    color: Colors.orange[800],
+                    size: 20,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Add New Address',
+                    style: TextStyle(
+                      color: Colors.orange[800],
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          // Delivery time info
+          Text(
+            selectedDelivery == 'pickup'
+                ? 'Ready for pickup in 15-20 minutes'
+                : 'Delivery in 30-40 minutes',
+            style: TextStyle(color: Colors.grey[600], fontSize: 12),
+          ),
+        ],
+      ),
+    );
+  }
+
 
   Widget _buildPaymentOption(
     String value,

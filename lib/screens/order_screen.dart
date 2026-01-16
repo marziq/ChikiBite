@@ -31,6 +31,8 @@ class _OrderScreenState extends State<OrderScreen> {
         return Colors.orange;
       case 'preparing':
         return Colors.blue;
+      case 'ready_for_pickup':
+        return Colors.teal;
       case 'delivering':
         return Colors.purple;
       case 'completed':
@@ -48,6 +50,8 @@ class _OrderScreenState extends State<OrderScreen> {
         return Icons.pending;
       case 'preparing':
         return Icons.restaurant;
+      case 'ready_for_pickup':
+        return Icons.store;
       case 'delivering':
         return Icons.local_shipping;
       case 'completed':
@@ -64,19 +68,41 @@ class _OrderScreenState extends State<OrderScreen> {
     return DateFormat('MMM dd, yyyy • HH:mm').format(date);
   }
 
-  int _getProgressStep(String status) {
-    switch (status.toLowerCase()) {
-      case 'pending':
-        return 0;
-      case 'preparing':
-        return 1;
-      case 'delivering':
-        return 2;
-      case 'completed':
-        return 3;
-      default:
-        return 0;
+  int _getProgressStep(String status, {bool isPickup = false}) {
+    if (isPickup) {
+      // For pickup: Ordered -> Preparing -> Ready for Pickup -> Completed (no delivering)
+      switch (status.toLowerCase()) {
+        case 'pending':
+          return 0;
+        case 'preparing':
+          return 1;
+        case 'ready_for_pickup':
+        case 'delivering': // Map delivering to ready for pickup for backward compatibility
+          return 2;
+        case 'completed':
+          return 3;
+        default:
+          return 0;
+      }
+    } else {
+      // For delivery: Ordered -> Preparing -> Delivering -> Completed
+      switch (status.toLowerCase()) {
+        case 'pending':
+          return 0;
+        case 'preparing':
+          return 1;
+        case 'delivering':
+          return 2;
+        case 'completed':
+          return 3;
+        default:
+          return 0;
+      }
     }
+  }
+
+  bool _isPickupOrder(app_order.Order order) {
+    return order.deliveryAddress.toLowerCase().contains('pickup');
   }
 
   @override
@@ -247,8 +273,8 @@ class _OrderScreenState extends State<OrderScreen> {
           return Center(child: Text('Error: ${snapshot.error}'));
         }
 
-        // Filter for active orders (pending, preparing, delivering) client-side
-        final activeStatuses = ['pending', 'preparing', 'delivering'];
+        // Filter for active orders (pending, preparing, ready_for_pickup, delivering) client-side
+        final activeStatuses = ['pending', 'preparing', 'ready_for_pickup', 'delivering'];
         var orders =
             snapshot.data?.docs
                 .map((doc) => app_order.Order.fromDocument(doc))
@@ -404,7 +430,8 @@ class _OrderScreenState extends State<OrderScreen> {
   Widget _buildActiveOrderCard(app_order.Order order) {
     final statusColor = _getStatusColor(order.status);
     final statusIcon = _getStatusIcon(order.status);
-    final progressStep = _getProgressStep(order.status);
+    final isPickup = _isPickupOrder(order);
+    final progressStep = _getProgressStep(order.status, isPickup: isPickup);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -541,7 +568,7 @@ class _OrderScreenState extends State<OrderScreen> {
 
           // Progress Indicator
           const SizedBox(height: 16),
-          _buildProgressIndicator(progressStep),
+          _buildProgressIndicator(progressStep, isPickup: isPickup),
         ],
       ),
     );
@@ -728,8 +755,11 @@ class _OrderScreenState extends State<OrderScreen> {
     );
   }
 
-  Widget _buildProgressIndicator(int currentStep) {
-    final steps = ['Ordered', 'Preparing', 'Delivering', 'Completed'];
+  Widget _buildProgressIndicator(int currentStep, {bool isPickup = false}) {
+    // Different steps for pickup vs delivery
+    final steps = isPickup 
+        ? ['Ordered', 'Preparing', 'Ready', 'Picked Up']
+        : ['Ordered', 'Preparing', 'Delivering', 'Completed'];
 
     return Column(
       children: [
