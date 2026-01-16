@@ -115,6 +115,19 @@ class PromoCodeService {
     }
   }
 
+  /// Check if user has used a promo code by code string
+  Future<bool> hasUserUsedPromoCode(String promoCode, String userId) async {
+    try {
+      final promo = await getPromoCodeByCode(promoCode);
+      if (promo == null) return false;
+      
+      final count = await getUserUsageCount(promo.id, userId);
+      return count > 0;
+    } catch (e) {
+      return false;
+    }
+  }
+
   /// Validate a promo code for a user and order subtotal
   Future<PromoCodeValidationResult> validatePromoCode({
     required String code,
@@ -213,6 +226,24 @@ class PromoCodeService {
     }
   }
 
+  /// Update all existing promo codes to have perUserLimit: 1
+  Future<void> fixPromoCodesPerUserLimit() async {
+    try {
+      final snapshot = await _promoCodesCollection.get();
+      for (final doc in snapshot.docs) {
+        final data = doc.data();
+        // Only update if perUserLimit is not already set to 1
+        if (data['perUserLimit'] != 1) {
+          await _promoCodesCollection.doc(doc.id).update({
+            'perUserLimit': 1,
+          });
+        }
+      }
+    } catch (e) {
+      throw Exception('Failed to fix promo codes: $e');
+    }
+  }
+
   /// Deactivate promo code
   Future<void> deactivatePromoCode(String id) async {
     await updatePromoCode(id, {'isActive': false});
@@ -260,6 +291,7 @@ class PromoCodeService {
           discountType: DiscountType.fixedAmount,
           discountValue: 5,
           minOrderAmount: 25.00,
+          perUserLimit: 1,
           usageLimit: 100,
           isActive: true,
           createdAt: now,
@@ -271,6 +303,7 @@ class PromoCodeService {
           discountType: DiscountType.freeDelivery,
           discountValue: 0,
           minOrderAmount: 30.00,
+          perUserLimit: 1,
           isActive: true,
           createdAt: now,
         ),
@@ -282,6 +315,7 @@ class PromoCodeService {
           discountValue: 20,
           minOrderAmount: 20.00,
           maxDiscountAmount: 15.00,
+          perUserLimit: 1,
           usageLimit: 50,
           isActive: true,
           createdAt: now,
@@ -293,6 +327,7 @@ class PromoCodeService {
           discountType: DiscountType.fixedAmount,
           discountValue: 10,
           minOrderAmount: 40.00,
+          perUserLimit: 1,
           validUntil: oneYearLater,
           isActive: true,
           createdAt: now,

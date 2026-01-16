@@ -34,6 +34,9 @@ class _RewardScreenState extends State<RewardScreen> {
         // Seed promo codes if needed
         await promoCodeService.seedPromoCodes();
         
+        // Fix existing promo codes to have perUserLimit
+        await promoCodeService.fixPromoCodesPerUserLimit();
+        
         if (mounted) {
           setState(() {
             _userPoints = userProfile?.points ?? 0;
@@ -146,7 +149,7 @@ class _RewardScreenState extends State<RewardScreen> {
                         physics: const NeverScrollableScrollPhysics(),
                         itemCount: promoCodes.length,
                         itemBuilder: (context, index) {
-                          return _buildPromoCodeCard(promoCodes[index]);
+                          return _buildPromoCodeCardWithUsageCheck(promoCodes[index]);
                         },
                       );
                     },
@@ -231,56 +234,6 @@ class _RewardScreenState extends State<RewardScreen> {
                 ),
           ),
           const SizedBox(height: 24),
-
-          // Progress Bar
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Progress to next reward',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    Text(
-                      '${_userPoints % 500} / 500',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: LinearProgressIndicator(
-                    value: progress,
-                    minHeight: 8,
-                    backgroundColor: Colors.white.withOpacity(0.3),
-                    valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  '$pointsToNext more points to unlock next reward!',
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.9),
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ),
-          ),
         ],
       ),
     );
@@ -356,132 +309,184 @@ class _RewardScreenState extends State<RewardScreen> {
     );
   }
 
-  Widget _buildPromoCodeCard(PromoCode promo) {
-    final promoColor = _getPromoColor(promo.discountType);
+  Widget _buildPromoCodeCardWithUsageCheck(PromoCode promo) {
+    final user = firebase_auth.FirebaseAuth.instance.currentUser;
+    
+    if (user == null) {
+      return _buildPromoCodeCard(promo, isUsed: false);
+    }
 
-    return GestureDetector(
-      onTap: () => _copyPromoCode(promo.code),
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: promoColor.withOpacity(0.3), width: 2),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
-              spreadRadius: 1,
-              blurRadius: 4,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            // Left colored section with code
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-              decoration: BoxDecoration(
-                color: promoColor.withOpacity(0.1),
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(14),
-                  bottomLeft: Radius.circular(14),
-                ),
+    return FutureBuilder<bool>(
+      future: promoCodeService.hasUserUsedPromoCode(promo.code, user.uid),
+      builder: (context, snapshot) {
+        final isUsed = snapshot.data ?? false;
+        return _buildPromoCodeCard(promo, isUsed: isUsed);
+      },
+    );
+  }
+
+  Widget _buildPromoCodeCard(PromoCode promo, {bool isUsed = false}) {
+    final promoColor = _getPromoColor(promo.discountType);
+    final opacity = isUsed ? 0.5 : 1.0;
+
+    return Opacity(
+      opacity: opacity,
+      child: GestureDetector(
+        onTap: isUsed ? null : () => _copyPromoCode(promo.code),
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: promoColor.withOpacity(0.3), width: 2),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.1),
+                spreadRadius: 1,
+                blurRadius: 4,
+                offset: const Offset(0, 2),
               ),
-              child: Column(
+            ],
+          ),
+          child: Stack(
+            children: [
+              Row(
                 children: [
-                  Icon(_getPromoIcon(promo.discountType), color: promoColor, size: 28),
-                  const SizedBox(height: 8),
+                  // Left colored section with code
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
                     decoration: BoxDecoration(
-                      color: promoColor,
-                      borderRadius: BorderRadius.circular(4),
+                      color: promoColor.withOpacity(0.1),
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(14),
+                        bottomLeft: Radius.circular(14),
+                      ),
                     ),
-                    child: Text(
-                      promo.code,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12,
-                        letterSpacing: 1,
+                    child: Column(
+                      children: [
+                        Icon(_getPromoIcon(promo.discountType), color: promoColor, size: 28),
+                        const SizedBox(height: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: promoColor,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            promo.code,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                              letterSpacing: 1,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Right details section
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            promo.discountDescription,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                              color: promoColor,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            promo.description,
+                            style: TextStyle(
+                              color: Colors.grey[700],
+                              fontSize: 13,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Wrap(
+                            spacing: 12,
+                            runSpacing: 4,
+                            children: [
+                              if (promo.minOrderAmount != null)
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(Icons.shopping_cart_outlined, 
+                                        size: 12, color: Colors.grey[500]),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      'Min RM${promo.minOrderAmount!.toStringAsFixed(0)}',
+                                      style: TextStyle(
+                                        color: Colors.grey[600],
+                                        fontSize: 11,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              if (promo.validUntil != null)
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(Icons.access_time, size: 12, color: Colors.grey[500]),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      'Until ${promo.validUntil!.day}/${promo.validUntil!.month}',
+                                      style: TextStyle(
+                                        color: Colors.grey[600],
+                                        fontSize: 11,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
                   ),
+                  // Copy icon
+                  Padding(
+                    padding: const EdgeInsets.only(right: 12),
+                    child: Icon(Icons.copy, color: Colors.grey[400], size: 20),
+                  ),
                 ],
               ),
-            ),
-            // Right details section
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      promo.discountDescription,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                        color: promoColor,
+              // "Already Claimed" badge overlay
+              if (isUsed)
+                Positioned.fill(
+                  child: Center(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[800],
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.check_circle, color: Colors.white, size: 16),
+                          SizedBox(width: 8),
+                          Text(
+                            'Already Claimed',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      promo.description,
-                      style: TextStyle(
-                        color: Colors.grey[700],
-                        fontSize: 13,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Wrap(
-                      spacing: 12,
-                      runSpacing: 4,
-                      children: [
-                        if (promo.minOrderAmount != null)
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(Icons.shopping_cart_outlined, 
-                                  size: 12, color: Colors.grey[500]),
-                              const SizedBox(width: 4),
-                              Text(
-                                'Min RM${promo.minOrderAmount!.toStringAsFixed(0)}',
-                                style: TextStyle(
-                                  color: Colors.grey[600],
-                                  fontSize: 11,
-                                ),
-                              ),
-                            ],
-                          ),
-                        if (promo.validUntil != null)
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(Icons.access_time, size: 12, color: Colors.grey[500]),
-                              const SizedBox(width: 4),
-                              Text(
-                                'Until ${promo.validUntil!.day}/${promo.validUntil!.month}',
-                                style: TextStyle(
-                                  color: Colors.grey[600],
-                                  fontSize: 11,
-                                ),
-                              ),
-                            ],
-                          ),
-                      ],
-                    ),
-                  ],
+                  ),
                 ),
-              ),
-            ),
-            // Copy icon
-            Padding(
-              padding: const EdgeInsets.only(right: 12),
-              child: Icon(Icons.copy, color: Colors.grey[400], size: 20),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

@@ -213,6 +213,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> with WidgetsBindingObse
           _promoDiscount = result.discountAmount;
           _isFreeDelivery = result.promoCode!.discountType == DiscountType.freeDelivery;
           _promoErrorMessage = null;
+          
+          // Record promo usage immediately to prevent reuse
+          _recordPromoUsageImmediately(result.promoCode!, user.uid);
         } else {
           _appliedPromoCode = null;
           _promoDiscount = 0;
@@ -220,6 +223,20 @@ class _CheckoutScreenState extends State<CheckoutScreen> with WidgetsBindingObse
           _promoErrorMessage = result.errorMessage;
         }
       });
+    }
+  }
+
+  // Record promo usage immediately when applied (generates temporary orderId)
+  Future<void> _recordPromoUsageImmediately(PromoCode promo, String userId) async {
+    try {
+      await promoCodeService.recordPromoUsage(
+        promoCodeId: promo.id,
+        userId: userId,
+        orderId: 'pending_${DateTime.now().millisecondsSinceEpoch}',
+        discountApplied: _promoDiscount,
+      );
+    } catch (e) {
+      print('Error recording promo usage: $e');
     }
   }
 
@@ -609,8 +626,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> with WidgetsBindingObse
       // Save to Firestore and get the order ID
       final orderId = await orderService.createOrder(order);
 
-      // Record promo code usage if one was applied
+      // Update promo usage record with actual order ID (was created with pending ID)
       if (_appliedPromoCode != null) {
+        // Create a new usage record with the actual order ID
         await promoCodeService.recordPromoUsage(
           promoCodeId: _appliedPromoCode!.id,
           userId: user.uid,
