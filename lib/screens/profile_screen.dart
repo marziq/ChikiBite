@@ -383,20 +383,6 @@ class ProfileScreen extends StatelessWidget {
                     );
                   },
                 ),
-                _buildMenuItem(
-                  context,
-                  icon: Icons.payment_outlined,
-                  title: 'Payment Methods',
-                  subtitle: 'Add or remove payment cards',
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const PaymentMethodsScreen(),
-                      ),
-                    );
-                  },
-                ),
                 const SizedBox(height: 24),
 
                 // Orders Section
@@ -446,20 +432,6 @@ class ProfileScreen extends StatelessWidget {
                       context,
                       MaterialPageRoute(
                         builder: (_) => const NotificationsSettingsScreen(),
-                      ),
-                    );
-                  },
-                ),
-                _buildMenuItem(
-                  context,
-                  icon: Icons.language_outlined,
-                  title: 'Language',
-                  subtitle: 'English',
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const LanguageSelectionScreen(),
                       ),
                     );
                   },

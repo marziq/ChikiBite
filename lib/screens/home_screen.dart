@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
 import 'checkout_screen.dart';
 import 'food_detail.dart';
 import '../data/menu_data.dart';
@@ -12,17 +13,58 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   late PageController _pageController;
+  late PageController _bannerController;
   int _currentPage = 0;
+  int _currentBannerPage = 0;
+  late Timer _bannerTimer;
+
+  final List<Map<String, String>> _offers = [
+    {
+      'title': 'Special Offer!',
+      'subtitle': 'Get 10% off on your first order',
+    },
+    {
+      'title': 'Free Delivery!',
+      'subtitle': 'On orders above RM 30',
+    },
+    {
+      'title': 'Weekend Combo',
+      'subtitle': 'Buy 2 get 1 free on selected items',
+    },
+    {
+      'title': 'Flash Sale!',
+      'subtitle': 'Limited time - Save up to 20%',
+    },
+  ];
 
   @override
   void initState() {
     super.initState();
     _pageController = PageController(viewportFraction: 0.85);
+    _bannerController = PageController();
+    
+    // Start banner auto-scroll after a short delay to ensure widgets are built
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (mounted) {
+        _bannerTimer = Timer.periodic(const Duration(seconds: 4), (timer) {
+          if (mounted && _bannerController.hasClients) {
+            _currentBannerPage = (_currentBannerPage + 1) % _offers.length;
+            _bannerController.animateToPage(
+              _currentBannerPage,
+              duration: const Duration(milliseconds: 800),
+              curve: Curves.easeInOut,
+            );
+          }
+        });
+      }
+    });
   }
 
   @override
   void dispose() {
     _pageController.dispose();
+    _bannerController.dispose();
+    _bannerTimer.cancel();
     super.dispose();
   }
 
@@ -70,41 +112,93 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(height: 24),
 
-                // Banner/Offer Section
-                Container(
-                  width: double.infinity,
+                // Banner/Offer Section with Slide Animation
+                SizedBox(
                   height: 180,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [Colors.orange[400]!, Colors.orange[700]!],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Special Offer!',
-                          style: Theme.of(context).textTheme.headlineSmall
-                              ?.copyWith(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
+                  child: Stack(
+                    children: [
+                      PageView.builder(
+                        controller: _bannerController,
+                        onPageChanged: (index) {
+                          setState(() {
+                            _currentBannerPage = index;
+                          });
+                        },
+                        itemCount: _offers.length,
+                        itemBuilder: (context, index) {
+                          final offer = _offers[index];
+                          return Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 8),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [Colors.orange[400]!, Colors.orange[700]!],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
                               ),
+                              borderRadius: BorderRadius.circular(16),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.orange.withOpacity(0.3),
+                                  spreadRadius: 2,
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(20.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    offer['title']!,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headlineSmall
+                                        ?.copyWith(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    offer['subtitle']!,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyLarge
+                                        ?.copyWith(color: Colors.white),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                      // Dot Indicators at the bottom
+                      Positioned(
+                        bottom: 12,
+                        left: 0,
+                        right: 0,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: List.generate(
+                            _offers.length,
+                            (index) => Container(
+                              width: _currentBannerPage == index ? 24 : 8,
+                              height: 8,
+                              margin: const EdgeInsets.symmetric(horizontal: 4),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(4),
+                                color: _currentBannerPage == index
+                                    ? Colors.white
+                                    : Colors.white.withOpacity(0.5),
+                              ),
+                            ),
+                          ),
                         ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Get 20% off on your first order',
-                          style: Theme.of(
-                            context,
-                          ).textTheme.bodyLarge?.copyWith(color: Colors.white),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(height: 32),
@@ -121,20 +215,18 @@ class _HomeScreenState extends State<HomeScreen> {
                   height: 100,
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
-                    itemCount: 5,
+                    itemCount: 4,
                     itemBuilder: (context, index) {
                       final categories = [
                         'All',
                         'Chicken',
                         'Burger',
-                        'Rice',
                         'Drinks',
                       ];
                       final icons = [
                         Icons.restaurant,
                         Icons.fastfood,
                         Icons.lunch_dining,
-                        Icons.rice_bowl,
                         Icons.local_drink,
                       ];
                       return Container(
@@ -463,14 +555,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(Icons.shopping_cart, color: Colors.white, size: 20),
-                    const SizedBox(width: 6),
-                    const Text(
-                      'Cart',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
                   ],
                 ),
               ),

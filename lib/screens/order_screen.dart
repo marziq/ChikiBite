@@ -179,7 +179,7 @@ class _OrderScreenState extends State<OrderScreen> {
                   ),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: ElevatedButton.icon(
+                child: ElevatedButton(
                   onPressed: () {
                     Navigator.push(
                       context,
@@ -195,21 +195,14 @@ class _OrderScreenState extends State<OrderScreen> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
+                      horizontal: 8,
                       vertical: 8,
                     ),
                   ),
-                  icon: const Icon(
+                  child: const Icon(
                     Icons.shopping_cart,
                     color: Colors.white,
-                    size: 18,
-                  ),
-                  label: const Text(
-                    'Cart',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    size: 20,
                   ),
                 ),
               ),
