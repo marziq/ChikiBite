@@ -5,8 +5,20 @@ import '../services/cart_service.dart';
 import '../services/order_service.dart';
 import '../services/profile_service.dart';
 import '../services/promo_code_service.dart';
+import '../services/voucher_service.dart';
 import '../models/order.dart' as app_order;
 import '../models/promo_code.dart';
+import '../models/voucher.dart' show Voucher, VoucherStatus, VoucherType;
+
+extension FirstWhereOrNullExtension<T> on List<T> {
+  T? firstWhereOrNull(bool Function(T) test) {
+    try {
+      return firstWhere(test);
+    } catch (e) {
+      return null;
+    }
+  }
+}
 
 class CheckoutScreen extends StatefulWidget {
   const CheckoutScreen({super.key});
@@ -15,12 +27,13 @@ class CheckoutScreen extends StatefulWidget {
   State<CheckoutScreen> createState() => _CheckoutScreenState();
 }
 
-class _CheckoutScreenState extends State<CheckoutScreen> {
+class _CheckoutScreenState extends State<CheckoutScreen> with WidgetsBindingObserver {
   String selectedPaymentMethod = 'card';
   String selectedDelivery = 'home';
   bool _isPlacingOrder = false;
   bool _isLoadingAddresses = true;
   bool _isValidatingPromo = false;
+  bool _isLoadingVouchers = false;
   List<Map<String, dynamic>> _userAddresses = [];
   Map<String, dynamic>? _selectedAddress;
   TextEditingController promoController = TextEditingController();
@@ -31,13 +44,66 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   double _promoDiscount = 0;
   String? _promoErrorMessage;
   bool _isFreeDelivery = false;
+  
+  // Voucher state
+  List<Voucher> _userVouchers = [];
+  Voucher? _appliedVoucher;
+  double _voucherDiscount = 0;
+  bool _freeDeliveryFromVoucher = false;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _loadUserAddresses();
+    _loadUserVouchers();
     // Seed promo codes if they don't exist
     promoCodeService.seedPromoCodes();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      // Refresh vouchers when app comes back to foreground
+      _loadUserVouchers();
+    }
+  }
+
+  Future<void> _loadUserVouchers() async {
+    final user = firebase_auth.FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      try {
+        setState(() {
+          _isLoadingVouchers = true;
+        });
+        // Add a small delay to ensure Firebase has synced
+        await Future.delayed(const Duration(milliseconds: 500));
+        final vouchers = await voucherService.getAllUserVouchers(user.uid);
+        print('Loaded ${vouchers.length} total vouchers');
+        for (var v in vouchers) {
+          print('Voucher: ${v.name}, Status: ${v.status}, IsValid: ${v.isValid}');
+        }
+        if (mounted) {
+          setState(() {
+            // Only show available/valid vouchers
+            _userVouchers = vouchers.where((v) => v.isValid).toList();
+            print('Filtered to ${_userVouchers.length} valid vouchers');
+            _isLoadingVouchers = false;
+          });
+        }
+      } catch (e) {
+        print('Error loading vouchers: $e');
+        if (mounted) {
+          setState(() {
+            _isLoadingVouchers = false;
+          });
+        }
+      }
+    } else {
+      setState(() {
+        _isLoadingVouchers = false;
+      });
+    }
   }
 
   Future<void> _loadUserAddresses() async {
@@ -75,6 +141,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     promoController.dispose();
     newAddressController.dispose();
     super.dispose();
@@ -92,6 +159,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     if (selectedDelivery == 'pickup') return 0.0;
     // Free delivery from promo code
     if (_isFreeDelivery) return 0.0;
+    // Free delivery from voucher
+    if (_freeDeliveryFromVoucher) return 0.0;
     return 3.50;
   }
 
@@ -105,7 +174,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     final tax = calculateTax(subtotal);
     final deliveryFee = calculateDeliveryFee();
     final promoDiscount = calculatePromoDiscount(subtotal);
-    return subtotal + tax + deliveryFee - promoDiscount;
+    return subtotal + tax + deliveryFee - promoDiscount - _voucherDiscount;
   }
 
   Future<void> _applyPromoCode(double subtotal) async {
@@ -161,6 +230,150 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       _isFreeDelivery = false;
       _promoErrorMessage = null;
       promoController.clear();
+    });
+  }
+
+  void _applyVoucher(Voucher voucher, double subtotal, CartService cart) {
+    String? errorMessage;
+    double discountAmount = 0;
+    bool isFreeDelivery = false;
+    
+    // Calculate voucher discount based on type
+    switch (voucher.type) {
+      case VoucherType.percentDiscount:
+        if (voucher.discountValue != null) {
+          discountAmount = subtotal * (voucher.discountValue! / 100);
+        }
+        break;
+      case VoucherType.fixedDiscount:
+        if (voucher.discountValue != null) {
+          discountAmount = voucher.discountValue!;
+        }
+        break;
+      case VoucherType.freeDelivery:
+        discountAmount = 0;
+        isFreeDelivery = true;
+        break;
+      case VoucherType.freeItem:
+        // Strict validation for free items
+        if (voucher.name.toLowerCase().contains('burger')) {
+          // Free Burger: Check if cart has burger
+          final burgerItem = cart.items.firstWhereOrNull(
+            (item) => item.name.toLowerCase().contains('burger') || 
+                      item.name.toLowerCase().contains('chicken')
+          );
+          if (burgerItem != null) {
+            discountAmount = burgerItem.price;
+          } else {
+            errorMessage = 'No burger/chicken found in cart!';
+          }
+        } else if (voucher.name.toLowerCase().contains('drinks')) {
+          // Free Drink: Check if cart has drink
+          final drinkItem = cart.items.firstWhereOrNull(
+            (item) {
+              final name = item.name.toLowerCase();
+              return name.contains('drinks') ||
+                     name.contains('beverage') ||
+                     name.contains('juice') ||
+                     name.contains('tea') ||
+                     name.contains('coffee') ||
+                     name.contains('water') ||
+                     name.contains('cola') ||
+                     name.contains('soda') ||
+                     name.contains('shake') ||
+                     name.contains('smoothie') ||
+                     name.contains('lemonade');
+            }
+          );
+          if (drinkItem != null) {
+            discountAmount = drinkItem.price;
+          } else {
+            errorMessage = 'No drink found in cart!';
+          }
+        } else if (voucher.name.toLowerCase().contains('meal')) {
+          // Free Meal: Check if cart has 1 burger/chicken AND 1 drink
+          final burgerItem = cart.items.firstWhereOrNull(
+            (item) => item.name.toLowerCase().contains('burger') ||
+                      item.name.toLowerCase().contains('chicken')
+          );
+          final drinkItem = cart.items.firstWhereOrNull(
+            (item) {
+              final name = item.name.toLowerCase();
+              return name.contains('drinks') ||
+                     name.contains('beverage') ||
+                     name.contains('juice') ||
+                     name.contains('tea') ||
+                     name.contains('coffee') ||
+                     name.contains('water') ||
+                     name.contains('cola') ||
+                     name.contains('soda') ||
+                     name.contains('shake') ||
+                     name.contains('smoothie') ||
+                     name.contains('lemonade');
+            }
+          );
+          
+          if (burgerItem == null) {
+            errorMessage = 'Free Meal requires a burger/chicken in cart!';
+          } else if (drinkItem == null) {
+            errorMessage = 'Free Meal requires a drink in cart!';
+          } else {
+            discountAmount = burgerItem.price + drinkItem.price;
+          }
+        }
+        break;
+    }
+    
+    if (errorMessage != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(errorMessage),
+          backgroundColor: Colors.red[700],
+          duration: const Duration(seconds: 3),
+        ),
+      );
+      return;
+    }
+    
+    setState(() {
+      _appliedVoucher = voucher;
+      _voucherDiscount = discountAmount;
+      _freeDeliveryFromVoucher = isFreeDelivery;
+    });
+    
+    // Mark voucher as used in Firebase
+    _markVoucherAsUsed(voucher);
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Voucher applied! You save RM ${discountAmount.toStringAsFixed(2)}'),
+        backgroundColor: Colors.green[700],
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
+  Future<void> _markVoucherAsUsed(Voucher voucher) async {
+    try {
+      // Update voucher status to used in Firebase
+      await voucherService.markVoucherAsUsed(voucher.id);
+      
+      // Remove from local list
+      if (mounted) {
+        setState(() {
+          _userVouchers.removeWhere((v) => v.id == voucher.id);
+        });
+      }
+    } catch (e) {
+      print('Error marking voucher as used: $e');
+    }
+  }
+
+  void _removeVoucher() {
+    setState(() {
+      _appliedVoucher = null;
+      _voucherDiscount = 0;
+      _freeDeliveryFromVoucher = false;
     });
   }
 
@@ -645,6 +858,13 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
                       const SizedBox(height: 24),
 
+                      // Voucher Section
+                      _buildSectionTitle('Redeem Voucher'),
+                      const SizedBox(height: 12),
+                      _buildVoucherSection(subtotal, cart),
+
+                      const SizedBox(height: 24),
+
                       // Delivery Address Section
                       _buildSectionTitle('Delivery Address'),
                       const SizedBox(height: 12),
@@ -829,6 +1049,16 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                 promoDiscount > 0 
                                     ? '- RM ${promoDiscount.toStringAsFixed(2)}'
                                     : _isFreeDelivery ? 'Free Delivery' : '',
+                                isDiscount: true,
+                              ),
+                            ],
+                            if (_appliedVoucher != null && (_voucherDiscount > 0 || _freeDeliveryFromVoucher)) ...[
+                              const SizedBox(height: 12),
+                              _buildPriceRow(
+                                'Voucher (${_appliedVoucher!.name})',
+                                _voucherDiscount > 0 
+                                    ? '- RM ${_voucherDiscount.toStringAsFixed(2)}'
+                                    : _freeDeliveryFromVoucher ? 'Free Delivery' : '',
                                 isDiscount: true,
                               ),
                             ],
@@ -1439,4 +1669,177 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       ],
     );
   }
+
+  Widget _buildVoucherSection(double subtotal, CartService cart) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: _appliedVoucher != null 
+              ? Colors.green[400]! 
+              : Colors.blue[200]!,
+          width: _appliedVoucher != null ? 2 : 1,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (_appliedVoucher != null) ...[
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.green[50],
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.check_circle, color: Colors.green[700], size: 20),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          _appliedVoucher!.name,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.green[700],
+                            fontSize: 14,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          _appliedVoucher!.description,
+                          style: TextStyle(
+                            color: Colors.green[600],
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: _removeVoucher,
+                    child: Icon(Icons.close, color: Colors.green[700], size: 20),
+                  ),
+                ],
+              ),
+            ),
+          ] else if (_isLoadingVouchers) ...[
+            const Center(
+              child: Padding(
+                padding: EdgeInsets.all(16.0),
+                child: CircularProgressIndicator(),
+              ),
+            ),
+          ] else if (_userVouchers.isEmpty) ...[
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.grey[50],
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.card_giftcard, color: Colors.grey[500], size: 24),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'No vouchers available',
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Earn points to redeem!',
+                          style: TextStyle(
+                            color: Colors.grey[500],
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: _loadUserVouchers,
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.orange[100],
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.refresh,
+                        color: Colors.orange[800],
+                        size: 18,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ] else ...[
+            // Vouchers list
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: _userVouchers.map((voucher) {
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: GestureDetector(
+                      onTap: () => _applyVoucher(voucher, subtotal, cart),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.blue[50],
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.blue[300]!),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              voucher.name,
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.blue[800],
+                                fontSize: 12,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              voucher.description,
+                              style: TextStyle(
+                                color: Colors.blue[600],
+                                fontSize: 10,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
 }
+

@@ -76,10 +76,13 @@ class VoucherService {
     try {
       final snapshot = await _vouchersCollection
           .where('userId', isEqualTo: userId)
-          .orderBy('createdAt', descending: true)
           .get();
-      return snapshot.docs.map((doc) => Voucher.fromDocument(doc)).toList();
+      final vouchers = snapshot.docs.map((doc) => Voucher.fromDocument(doc)).toList();
+      // Sort by createdAt in descending order (newest first)
+      vouchers.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      return vouchers;
     } catch (e) {
+      print('Error getting user vouchers: $e');
       return [];
     }
   }
@@ -139,6 +142,19 @@ class VoucherService {
       return null;
     } catch (e) {
       return null;
+    }
+  }
+
+  /// Mark voucher as used (when applied to checkout)
+  Future<bool> markVoucherAsUsed(String voucherId) async {
+    try {
+      await _vouchersCollection.doc(voucherId).update({
+        'status': 'used',
+      });
+      return true;
+    } catch (e) {
+      print('Error marking voucher as used: $e');
+      return false;
     }
   }
 

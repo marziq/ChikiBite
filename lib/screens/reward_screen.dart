@@ -5,7 +5,7 @@ import '../services/profile_service.dart';
 import '../services/promo_code_service.dart';
 import '../services/voucher_service.dart';
 import '../models/promo_code.dart';
-import '../models/voucher.dart';
+import '../models/voucher.dart' show Voucher, VoucherType, VoucherStatus, RedemptionOption, IconType, redemptionOptions;
 
 class RewardScreen extends StatefulWidget {
   const RewardScreen({super.key});
