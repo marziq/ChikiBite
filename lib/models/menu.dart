@@ -7,6 +7,11 @@ class MenuItem {
   final double price;
   final String imagePath;
   final String category;
+  final List<String> ingredients;
+  final double calories;
+  final double protein;
+  final double fat;
+  final double carbs;
 
   const MenuItem({
     required this.itemID,
@@ -15,6 +20,11 @@ class MenuItem {
     required this.price,
     required this.imagePath,
     required this.category,
+    this.ingredients = const [],
+    this.calories = 450,
+    this.protein = 25,
+    this.fat = 18,
+    this.carbs = 42,
   });
 
   MenuItem copyWith({
@@ -24,6 +34,11 @@ class MenuItem {
     double? price,
     String? imagePath,
     String? category,
+    List<String>? ingredients,
+    double? calories,
+    double? protein,
+    double? fat,
+    double? carbs,
   }) {
     return MenuItem(
       itemID: itemID ?? this.itemID,
@@ -32,6 +47,11 @@ class MenuItem {
       price: price ?? this.price,
       imagePath: imagePath ?? this.imagePath,
       category: category ?? this.category,
+      ingredients: ingredients ?? this.ingredients,
+      calories: calories ?? this.calories,
+      protein: protein ?? this.protein,
+      fat: fat ?? this.fat,
+      carbs: carbs ?? this.carbs,
     );
   }
 
@@ -43,6 +63,11 @@ class MenuItem {
       price: (map['price'] as num?)?.toDouble() ?? 0.0,
       imagePath: map['imagePath'] as String? ?? '',
       category: map['category'] as String? ?? '',
+      ingredients: (map['ingredients'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
+      calories: (map['calories'] as num?)?.toDouble() ?? 450,
+      protein: (map['protein'] as num?)?.toDouble() ?? 25,
+      fat: (map['fat'] as num?)?.toDouble() ?? 18,
+      carbs: (map['carbs'] as num?)?.toDouble() ?? 42,
     );
   }
 
@@ -58,6 +83,11 @@ class MenuItem {
       price: 0,
       imagePath: '',
       category: '',
+      ingredients: [],
+      calories: 450,
+      protein: 25,
+      fat: 18,
+      carbs: 42,
     );
   }
 
@@ -69,6 +99,11 @@ class MenuItem {
       'price': price,
       'imagePath': imagePath,
       'category': category,
+      'ingredients': ingredients,
+      'calories': calories,
+      'protein': protein,
+      'fat': fat,
+      'carbs': carbs,
     };
   }
 

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'checkout_screen.dart';
 import 'food_detail.dart';
 import '../data/menu_data.dart';
+import '../models/menu.dart';
 import '../services/cart_service.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -301,12 +302,17 @@ class _HomeScreenState extends State<HomeScreen> {
                             context,
                             MaterialPageRoute(
                               builder: (context) => FoodDetailScreen(
-                                itemId: 'home_popular_${item.name.toLowerCase().replaceAll(' ', '_')}',
+                                itemId: item.itemID,
                                 foodName: item.name,
                                 description: item.description,
                                 price: item.price,
                                 category: item.category,
                                 imagePath: item.imagePath,
+                                ingredients: item.ingredients,
+                                calories: item.calories,
+                                protein: item.protein,
+                                fat: item.fat,
+                                carbs: item.carbs,
                               ),
                             ),
                           );
@@ -426,12 +432,17 @@ class _HomeScreenState extends State<HomeScreen> {
                             context,
                             MaterialPageRoute(
                               builder: (context) => FoodDetailScreen(
-                                itemId: 'home_recommended_${item.name.toLowerCase().replaceAll(' ', '_')}',
+                                itemId: item.itemID,
                                 foodName: item.name,
                                 description: item.description,
                                 price: item.price,
                                 category: item.category,
                                 imagePath: item.imagePath,
+                                ingredients: item.ingredients,
+                                calories: item.calories,
+                                protein: item.protein,
+                                fat: item.fat,
+                                carbs: item.carbs,
                               ),
                             ),
                           );

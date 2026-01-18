@@ -12,6 +12,10 @@ class FoodDetailScreen extends StatefulWidget {
   final int reviews;
   final List<String> ingredients;
   final String imagePath;
+  final double calories;
+  final double protein;
+  final double fat;
+  final double carbs;
 
   const FoodDetailScreen({
     super.key,
@@ -20,16 +24,20 @@ class FoodDetailScreen extends StatefulWidget {
     required this.description,
     required this.price,
     required this.category,
-    this.rating = 4.5,
-    this.reviews = 128,
+    this.rating = 5.5,
+    this.reviews = 150,
     this.ingredients = const [
       'Chicken',
-      'Cheese',
+      'Cheese Slice',
       'Lettuce',
       'Tomato',
       'Special Sauce',
     ],
     this.imagePath = 'assets/img/food_placeholder.png',
+    this.calories = 450,
+    this.protein = 25,
+    this.fat = 18,
+    this.carbs = 42,
   });
 
   @override
@@ -383,10 +391,10 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            _buildNutritionItem('Calories', '450', 'kcal'),
-                            _buildNutritionItem('Protein', '25', 'g'),
-                            _buildNutritionItem('Fat', '18', 'g'),
-                            _buildNutritionItem('Carbs', '42', 'g'),
+                            _buildNutritionItem('Calories', widget.calories.toStringAsFixed(0), 'kcal'),
+                            _buildNutritionItem('Protein', widget.protein.toStringAsFixed(0), 'g'),
+                            _buildNutritionItem('Fat', widget.fat.toStringAsFixed(0), 'g'),
+                            _buildNutritionItem('Carbs', widget.carbs.toStringAsFixed(0), 'g'),
                           ],
                         ),
                       ],

@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
 import 'food_detail.dart';
 import '../models/menu.dart';
+import '../data/menu_data.dart';
 import '../services/firestore_service.dart';
 import '../services/cart_service.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -189,11 +190,27 @@ class _MenuScreenState extends State<MenuScreen> {
                   );
                 }
 
-                // Convert docs to MenuItem objects
+                // Convert docs to MenuItem objects and merge with local data
                 final items = snapshot.data!.docs
                     .map((doc) {
                       print('Document: ${doc.id}, Data: ${doc.data()}');
-                      return MenuItem.fromDocument(doc);
+                      final firestoreItem = MenuItem.fromDocument(doc);
+                      
+                      // Find matching item in local menu data to get nutrition/ingredients
+                      final localItem = menuItems.firstWhere(
+                        (item) => item.itemID == firestoreItem.itemID || 
+                                 item.name == firestoreItem.name,
+                        orElse: () => firestoreItem,
+                      );
+                      
+                      // Merge: use Firestore data but fill in missing nutrition/ingredients from local data
+                      return firestoreItem.ingredients.isEmpty ? firestoreItem.copyWith(
+                        ingredients: localItem.ingredients,
+                        calories: firestoreItem.calories == 450 ? localItem.calories : firestoreItem.calories,
+                        protein: firestoreItem.protein == 25 ? localItem.protein : firestoreItem.protein,
+                        fat: firestoreItem.fat == 18 ? localItem.fat : firestoreItem.fat,
+                        carbs: firestoreItem.carbs == 42 ? localItem.carbs : firestoreItem.carbs,
+                      ) : firestoreItem;
                     })
                     .toList();
                 
@@ -322,6 +339,11 @@ class _MenuScreenState extends State<MenuScreen> {
               price: item.price,
               category: item.category,
               imagePath: item.imagePath,
+              ingredients: item.ingredients,
+              calories: item.calories,
+              protein: item.protein,
+              fat: item.fat,
+              carbs: item.carbs,
               rating: 4.5,
               reviews: 100,
             ),
