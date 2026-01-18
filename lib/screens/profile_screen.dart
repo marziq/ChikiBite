@@ -244,15 +244,17 @@ class ProfileScreen extends StatelessWidget {
 
           // Signed in view
           return SingleChildScrollView(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 16.0),
             child: Column(
               children: [
                 // Profile Header
-                Container(
-                  padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
+                Center(
+                  child: Container(
+                    width: 320,
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.grey.withOpacity(0.1),
@@ -349,6 +351,7 @@ class ProfileScreen extends StatelessWidget {
                       ),
                     ],
                   ),
+                ),
                 ),
                 const SizedBox(height: 24),
 

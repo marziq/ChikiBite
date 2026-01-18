@@ -483,7 +483,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> with WidgetsBindingObse
               TextField(
                 controller: stateController,
                 decoration: InputDecoration(
-                  labelText: 'State',
+                  labelText: 'State *',
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
@@ -494,7 +494,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> with WidgetsBindingObse
               TextField(
                 controller: postalCodeController,
                 decoration: InputDecoration(
-                  labelText: 'Postal Code',
+                  labelText: 'Postal Code *',
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
@@ -515,10 +515,13 @@ class _CheckoutScreenState extends State<CheckoutScreen> with WidgetsBindingObse
           ),
           ElevatedButton(
             onPressed: () {
-              if (streetController.text.isEmpty || cityController.text.isEmpty) {
+              if (streetController.text.isEmpty || 
+                  cityController.text.isEmpty || 
+                  stateController.text.isEmpty || 
+                  postalCodeController.text.isEmpty) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                    content: Text('Street and City are required'),
+                    content: Text('Street, City, State, and Postal Code are required'),
                     backgroundColor: Colors.red,
                   ),
                 );

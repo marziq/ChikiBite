@@ -45,8 +45,11 @@ class _DeliveryAddressScreenState extends State<DeliveryAddressScreen> {
     final cityController = TextEditingController(
       text: existingAddress?['city'] ?? '',
     );
-    final zipController = TextEditingController(
-      text: existingAddress?['zip'] ?? '',
+    final stateController = TextEditingController(
+      text: existingAddress?['state'] ?? '',
+    );
+    final postalCodeController = TextEditingController(
+      text: existingAddress?['postalCode'] ?? '',
     );
 
     final result = await showDialog<bool>(
@@ -82,9 +85,17 @@ class _DeliveryAddressScreenState extends State<DeliveryAddressScreen> {
               ),
               const SizedBox(height: 12),
               TextField(
-                controller: zipController,
+                controller: stateController,
                 decoration: const InputDecoration(
-                  labelText: 'ZIP Code',
+                  labelText: 'State',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: postalCodeController,
+                decoration: const InputDecoration(
+                  labelText: 'Postal Code',
                   border: OutlineInputBorder(),
                 ),
               ),
@@ -101,7 +112,8 @@ class _DeliveryAddressScreenState extends State<DeliveryAddressScreen> {
               if (labelController.text.trim().isEmpty ||
                   streetController.text.trim().isEmpty ||
                   cityController.text.trim().isEmpty ||
-                  zipController.text.trim().isEmpty) {
+                  stateController.text.trim().isEmpty ||
+                  postalCodeController.text.trim().isEmpty) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text('Please fill all fields'),
@@ -117,7 +129,8 @@ class _DeliveryAddressScreenState extends State<DeliveryAddressScreen> {
                   'label': labelController.text.trim(),
                   'street': streetController.text.trim(),
                   'city': cityController.text.trim(),
-                  'zip': zipController.text.trim(),
+                  'state': stateController.text.trim(),
+                  'postalCode': postalCodeController.text.trim(),
                 };
 
                 try {
@@ -330,7 +343,7 @@ class _DeliveryAddressScreenState extends State<DeliveryAddressScreen> {
                     subtitle: Padding(
                       padding: const EdgeInsets.only(top: 8),
                       child: Text(
-                        '${address['street']}\n${address['city']}, ${address['zip']}',
+                        '${address['street']}\n${address['city']}, ${address['state']} ${address['postalCode']}',
                       ),
                     ),
                     trailing: PopupMenuButton(
