@@ -40,71 +40,16 @@ class ProfileScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24.0,
-                  vertical: 32.0,
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const SizedBox(height: 60),
-
-                    // Logo Container with shadow
-                    Container(
-                      padding: const EdgeInsets.all(28),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.orange.withOpacity(0.25),
-                            spreadRadius: 12,
-                            blurRadius: 24,
-                            offset: const Offset(0, 8),
-                          ),
-                        ],
-                      ),
-                      child: Image.asset(
-                        'assets/img/logo.png',
-                        width: 120,
-                        height: 120,
-                        fit: BoxFit.contain,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Icon(
-                            Icons.restaurant,
-                            size: 120,
-                            color: Colors.orange[800],
-                          );
-                        },
-                      ),
-                    ),
-                    const SizedBox(height: 48),
-
-                    // App Name
-                    Text(
-                      'ChikiBite',
-                      style: TextStyle(
-                        fontSize: 40,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.orange[900],
-                        letterSpacing: 1.5,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-
-                    // Tagline
-                    Text(
-                      'Delicious Food Delivered Fresh',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey[700],
-                        fontWeight: FontWeight.w500,
-                        letterSpacing: 0.3,
-                      ),
-                    ),
-                    const SizedBox(height: 48),
+              child: Center(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24.0,
+                    vertical: 32.0,
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
 
                     // Welcome Card
                     Container(
@@ -124,23 +69,19 @@ class ProfileScreen extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          // Icon with gradient background
-                          Container(
-                            padding: const EdgeInsets.all(20),
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [
-                                  Colors.orange[100]!,
-                                  Colors.orange[50]!,
-                                ],
-                              ),
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            child: Icon(
-                              Icons.person_outline,
-                              size: 60,
-                              color: Colors.orange[800],
-                            ),
+                          // ChikiBite Icon
+                          Image.asset(
+                            'assets/img/logo.png',
+                            width: 120,
+                            height: 120,
+                            fit: BoxFit.contain,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Icon(
+                                Icons.restaurant,
+                                size: 120,
+                                color: Colors.orange[800],
+                              );
+                            },
                           ),
                           const SizedBox(height: 24),
 
@@ -237,6 +178,7 @@ class ProfileScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 40),
                   ],
+                ),
                 ),
               ),
             );
