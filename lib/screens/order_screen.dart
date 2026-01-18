@@ -18,15 +18,51 @@ class OrderScreen extends StatefulWidget {
 class _OrderScreenState extends State<OrderScreen> {
   // 0 = Active Orders, 1 = History
   late int _selectedTab;
+  final Set<String> _initialActiveOrders = {};
+  bool _initialLoadDone = false;
 
   @override
   void initState() {
     super.initState();
     _selectedTab = widget.initialTab;
-    // Listener disabled - progress indicator shows status updates visually
+    _listenToOrderCompletions();
   }
 
-  // Removed _listenToOrderCompletions() - not needed since UI shows status updates
+  void _listenToOrderCompletions() {
+    final uid = firebase_auth.FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) return;
+
+    FirebaseFirestore.instance
+        .collection('orders')
+        .where('userId', isEqualTo: uid)
+        .snapshots()
+        .listen((snapshot) {
+      // On first load, mark all currently active orders as "initial"
+      if (!_initialLoadDone) {
+        _initialLoadDone = true;
+        for (var doc in snapshot.docs) {
+          final order = app_order.Order.fromDocument(doc);
+          final activeStatuses = ['pending', 'preparing', 'ready_for_pickup', 'delivering'];
+          if (activeStatuses.contains(order.status.toLowerCase())) {
+            _initialActiveOrders.add(order.id);
+          }
+        }
+        return; // Skip showing popup on initial load
+      }
+
+      // Only show popup for orders that were initially active and are now completed
+      for (var doc in snapshot.docs) {
+        final order = app_order.Order.fromDocument(doc);
+        if (order.status.toLowerCase() == 'completed' &&
+            _initialActiveOrders.contains(order.id)) {
+          _initialActiveOrders.remove(order.id); // Prevent showing popup multiple times
+          if (mounted) {
+            _showOrderCompletedPopup(order);
+          }
+        }
+      }
+    });
+  }
 
   Color _getStatusColor(String status) {
     switch (status.toLowerCase()) {
@@ -992,6 +1028,142 @@ class _OrderScreenState extends State<OrderScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  void _showOrderCompletedPopup(app_order.Order order) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Success icon with animation effect
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.green[100],
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.check_circle,
+                color: Colors.green[700],
+                size: 60,
+              ),
+            ),
+            const SizedBox(height: 20),
+            
+            // Success title
+            Text(
+              'Order Completed! 🎉',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.grey[800],
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 12),
+            
+            // Order details
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.grey[50],
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Order ID:',
+                        style: TextStyle(
+                          color: Colors.grey[600],
+                          fontSize: 13,
+                        ),
+                      ),
+                      Text(
+                        order.id.substring(0, 8).toUpperCase(),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.orange[800],
+                          fontSize: 13,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Total Amount:',
+                        style: TextStyle(
+                          color: Colors.grey[600],
+                          fontSize: 13,
+                        ),
+                      ),
+                      Text(
+                        'RM ${order.total.toStringAsFixed(2)}',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.green[700],
+                          fontSize: 13,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+            
+            // Message
+            Text(
+              'Thank you for your order! Your food has been delivered.',
+              style: TextStyle(
+                color: Colors.grey[600],
+                fontSize: 13,
+                height: 1.5,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+        actions: [
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.orange[800],
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text(
+                'View Order Details',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
