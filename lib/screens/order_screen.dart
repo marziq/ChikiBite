@@ -23,7 +23,10 @@ class _OrderScreenState extends State<OrderScreen> {
   void initState() {
     super.initState();
     _selectedTab = widget.initialTab;
+    // Listener disabled - progress indicator shows status updates visually
   }
+
+  // Removed _listenToOrderCompletions() - not needed since UI shows status updates
 
   Color _getStatusColor(String status) {
     switch (status.toLowerCase()) {
@@ -228,11 +231,15 @@ class _OrderScreenState extends State<OrderScreen> {
           backgroundColor: Colors.orange[700],
           foregroundColor: Colors.white,
         ),
+        backgroundColor: Colors.grey[50],
         body: SafeArea(child: body),
       );
     }
 
-    return SafeArea(child: body);
+    return Scaffold(
+      backgroundColor: Colors.grey[50],
+      body: SafeArea(child: body),
+    );
   }
 
   Widget _buildLoginPrompt() {
@@ -732,19 +739,49 @@ class _OrderScreenState extends State<OrderScreen> {
   }
 
   Widget _buildOrderItem(String name, String quantity, String price) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Expanded(
-          child: Text(
-            name,
-            style: const TextStyle(fontWeight: FontWeight.w500),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(
+            flex: 2,
+            child: Text(
+              name,
+              style: const TextStyle(
+                fontWeight: FontWeight.w500,
+                fontSize: 13,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
-        ),
-        Text(quantity, style: TextStyle(color: Colors.grey[600])),
-        const SizedBox(width: 16),
-        Text(price, style: const TextStyle(fontWeight: FontWeight.bold)),
-      ],
+          const SizedBox(width: 12),
+          Expanded(
+            flex: 1,
+            child: Text(
+              quantity,
+              style: TextStyle(
+                color: Colors.grey[600],
+                fontSize: 13,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            flex: 1,
+            child: Text(
+              price,
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 13,
+                color: Colors.red,
+              ),
+              textAlign: TextAlign.right,
+            ),
+          ),
+        ],
+      ),
     );
   }
 

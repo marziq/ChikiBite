@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../services/cart_service.dart';
 import '../services/order_service.dart';
 import '../services/profile_service.dart';
@@ -9,6 +10,9 @@ import '../services/voucher_service.dart';
 import '../models/order.dart' as app_order;
 import '../models/promo_code.dart';
 import '../models/voucher.dart' show Voucher, VoucherStatus, VoucherType;
+import 'order_history_screen.dart';
+import 'order_screen.dart';
+import 'main_screen.dart';
 
 extension FirstWhereOrNullExtension<T> on List<T> {
   T? firstWhereOrNull(bool Function(T) test) {
@@ -34,6 +38,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> with WidgetsBindingObse
   bool _isLoadingAddresses = true;
   bool _isValidatingPromo = false;
   bool _isLoadingVouchers = false;
+  bool _isOrderCompletionDialogShown = false;
   List<Map<String, dynamic>> _userAddresses = [];
   Map<String, dynamic>? _selectedAddress;
   TextEditingController promoController = TextEditingController();
@@ -601,6 +606,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> with WidgetsBindingObse
 
     setState(() {
       _isPlacingOrder = true;
+      _isOrderCompletionDialogShown = false; // Reset for new order
     });
 
     try {
@@ -640,12 +646,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> with WidgetsBindingObse
         );
       }
 
-      // Start automatic status progression (updates every 10 seconds)
+      // Start automatic status progression (updates every 30 seconds)
       final isPickup = selectedDelivery == 'pickup';
       orderService.startAutomaticStatusProgression(
         orderId,
         isPickup: isPickup,
-        intervalSeconds: 10,
+        intervalSeconds: 5,
       );
 
       // Add reward points (RM1 = 1 point)
@@ -663,23 +669,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> with WidgetsBindingObse
       cart.clearCart();
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Order placed successfully! 🎉 +$pointsEarned points earned!',
-              style: const TextStyle(color: Colors.white),
-            ),
-            backgroundColor: Colors.green[700],
-            duration: const Duration(seconds: 3),
-          ),
-        );
-
-        // Navigate back after short delay
-        Future.delayed(const Duration(seconds: 2), () {
-          if (mounted) {
-            Navigator.pop(context);
-          }
+        setState(() {
+          _isPlacingOrder = false;
         });
+        
+        // Show success dialog
+        _showOrderSuccessDialog(orderId, pointsEarned, user.uid);
       }
     } catch (e) {
       if (mounted) {
@@ -699,6 +694,147 @@ class _CheckoutScreenState extends State<CheckoutScreen> with WidgetsBindingObse
     }
   }
 
+  void _showOrderSuccessDialog(String orderId, int pointsEarned, String userId) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Success icon with animation effect
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.green[100],
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.check_circle,
+                color: Colors.green[700],
+                size: 60,
+              ),
+            ),
+            const SizedBox(height: 20),
+            
+            // Success title
+            Text(
+              'Order Placed Successfully! 🎉',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.grey[800],
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 12),
+            
+            // Order details
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.grey[50],
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Order ID:',
+                        style: TextStyle(
+                          color: Colors.grey[600],
+                          fontSize: 13,
+                        ),
+                      ),
+                      Text(
+                        orderId.substring(0, 8).toUpperCase(),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.orange[800],
+                          fontSize: 13,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Points Earned:',
+                        style: TextStyle(
+                          color: Colors.grey[600],
+                          fontSize: 13,
+                        ),
+                      ),
+                      Text(
+                        '+$pointsEarned',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.green[700],
+                          fontSize: 13,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+            
+            // Message
+            Text(
+              'Your order is being prepared. Track your order in the next page.',
+              style: TextStyle(
+                color: Colors.grey[600],
+                fontSize: 13,
+                height: 1.5,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+        actions: [
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.orange[800],
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              onPressed: () {
+                Navigator.pop(context); // Close dialog
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => MainScreen(initialIndex: 2),
+                  ),
+                );
+              },
+              child: const Text(
+                'View Active Order',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
   @override
   Widget build(BuildContext context) {
     return Consumer<CartService>(
