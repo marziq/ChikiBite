@@ -350,20 +350,22 @@ class _RewardScreenState extends State<RewardScreen> {
           ),
           child: Stack(
             children: [
-              Row(
-                children: [
-                  // Left colored section with code
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-                    decoration: BoxDecoration(
-                      color: promoColor.withOpacity(0.1),
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(14),
-                        bottomLeft: Radius.circular(14),
+              IntrinsicHeight(
+                child: Row(
+                  children: [
+                    // Left colored section with code
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                      decoration: BoxDecoration(
+                        color: promoColor.withOpacity(0.1),
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(14),
+                          bottomLeft: Radius.circular(14),
+                        ),
                       ),
-                    ),
-                    child: Column(
-                      children: [
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
                         Icon(_getPromoIcon(promo.discountType), color: promoColor, size: 28),
                         const SizedBox(height: 8),
                         Container(
@@ -456,6 +458,7 @@ class _RewardScreenState extends State<RewardScreen> {
                     child: Icon(Icons.copy, color: Colors.grey[400], size: 20),
                   ),
                 ],
+              ),
               ),
               // "Already Claimed" badge overlay
               if (isUsed)

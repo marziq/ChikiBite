@@ -364,13 +364,13 @@ class _MenuScreenState extends State<MenuScreen> {
             ),
           ],
         ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+        child: IntrinsicHeight(
+          child: Row(
+            children: [
             // Food Image
             Container(
               width: 120,
-              height: 120,
+              constraints: const BoxConstraints(minHeight: 140),
               decoration: BoxDecoration(
                 color: Colors.orange[100],
                 borderRadius: const BorderRadius.only(
@@ -486,8 +486,7 @@ class _MenuScreenState extends State<MenuScreen> {
               ),
             ),
           ],
-        ),
-      ),
+        ),        ),      ),
     );
   }
 
