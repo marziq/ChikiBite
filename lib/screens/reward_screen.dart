@@ -6,6 +6,8 @@ import '../services/promo_code_service.dart';
 import '../services/voucher_service.dart';
 import '../models/promo_code.dart';
 import '../models/voucher.dart' show Voucher, VoucherType, VoucherStatus, RedemptionOption, IconType, redemptionOptions;
+import 'login_screen.dart';
+import 'register_screen.dart';
 
 class RewardScreen extends StatefulWidget {
   const RewardScreen({super.key});
@@ -93,9 +95,183 @@ class _RewardScreenState extends State<RewardScreen> {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
+      child: StreamBuilder<firebase_auth.User?>(
+        stream: firebase_auth.FirebaseAuth.instance.authStateChanges(),
+        builder: (context, userSnapshot) {
+          if (userSnapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          final currentUser = userSnapshot.data;
+
+          // Not logged in - show login prompt
+          if (currentUser == null) {
+            return Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Colors.orange[100]!,
+                    Colors.orange[50]!,
+                    Colors.white,
+                  ],
+                ),
+              ),
+              child: Center(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24.0,
+                    vertical: 32.0,
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      // Welcome Card
+                      Container(
+                        padding: const EdgeInsets.all(32),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(24),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.orange.withOpacity(0.15),
+                              spreadRadius: 8,
+                              blurRadius: 16,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            // ChikiBite Icon
+                            Image.asset(
+                              'assets/img/logo.png',
+                              width: 120,
+                              height: 120,
+                              fit: BoxFit.contain,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Icon(
+                                  Icons.restaurant,
+                                  size: 120,
+                                  color: Colors.orange[800],
+                                );
+                              },
+                            ),
+                            const SizedBox(height: 24),
+
+                            // Welcome Text
+                            Text(
+                              'Unlock Rewards',
+                              style: TextStyle(
+                                fontSize: 28,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.orange[900],
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 12),
+
+                            // Description
+                            Text(
+                              'Sign in to earn points, collect vouchers, and redeem exclusive rewards!',
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: Colors.grey[700],
+                                height: 1.6,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 32),
+
+                            // Login Button
+                            SizedBox(
+                              width: double.infinity,
+                              height: 56,
+                              child: ElevatedButton(
+                                onPressed: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => const LoginScreen(),
+                                  ),
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.orange[700],
+                                  disabledBackgroundColor: Colors.orange[300],
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  elevation: 4,
+                                  shadowColor: Colors.orange.withOpacity(0.4),
+                                ),
+                                child: const Text(
+                                  'Sign In',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+
+                            // Register Button
+                            SizedBox(
+                              width: double.infinity,
+                              height: 56,
+                              child: OutlinedButton(
+                                onPressed: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => const RegisterScreen(),
+                                  ),
+                                ),
+                                style: OutlinedButton.styleFrom(
+                                  side: BorderSide(
+                                    color: Colors.orange[700]!,
+                                    width: 2,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                child: Text(
+                                  'Create Account',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.orange[700],
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 40),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          }
+
+          // Logged in - show rewards content
+          return _buildRewardsContent();
+        },
+      ),
+    );
+  }
+
+  Widget _buildRewardsContent() {
+    return _isLoading
+        ? const Center(child: CircularProgressIndicator())
+        : SingleChildScrollView(
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -179,8 +355,7 @@ class _RewardScreenState extends State<RewardScreen> {
                   const SizedBox(height: 24),
                 ],
               ),
-            ),
-    );
+            );
   }
 
   Widget _buildPointsCard() {
