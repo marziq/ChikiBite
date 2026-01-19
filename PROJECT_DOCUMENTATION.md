@@ -51,6 +51,7 @@ version: 0.1.0
 
 #### **Media & File Handling**
 - `image_picker: ^1.0.8` - Camera/gallery image selection for profile pictures
+- `path: ^1.8.0` - Path manipulation utilities (included with Flutter SDK)
 
 #### **State Management & Data**
 - `provider: ^6.1.2` - State management and dependency injection
@@ -517,16 +518,79 @@ Handle vouchers and special offers:
 - Remove from favorites
 
 #### **ProfileScreen** (`screens/profile_screen.dart`)
-- User profile overview
+- User profile overview with profile picture display
 - Quick access to personal info
 - Settings shortcuts
 - Logout button
 
+**Profile Picture Display:**
+The profile screen now dynamically displays the user's profile picture with the same priority system as PersonalInformationScreen:
+1. **Local Profile Picture** → Shows if user has uploaded a picture
+2. **Firebase Photo URL** → Shows if only cloud photo is available
+3. **Default Person Icon** → Displays when neither local nor cloud photo exists
+
+**Implementation Details:**
+```dart
+// Asynchronously loads local profile picture on screen load
+FutureBuilder<String?>(
+  future: _loadLocalProfilePicture(user.uid),
+  builder: (context, snapshot) {
+    final localProfilePicture = snapshot.data;
+    // Display logic with three-tier fallback system
+  },
+)
+```
+
+**Helper Method:**
+```dart
+Future<String?> _loadLocalProfilePicture(String uid) async {
+  // Attempts to load from: {system-temp}/chikibite_profile_pictures/{uid}.jpg
+  // Returns path if file exists, null otherwise
+}
+```
+
+This ensures that whenever a user navigates to their profile, the most recent locally saved picture is displayed immediately, providing real-time feedback for any picture changes made in PersonalInformationScreen.
+
 #### **PersonalInformationScreen** (`screens/personal_information_screen.dart`)
 - Edit name & email
-- Upload profile picture
+- Upload profile picture from gallery
 - Update phone number
 - View account creation date
+
+**Profile Picture Upload Feature:**
+The screen now includes an interactive profile picture upload system with a camera icon button overlay on the profile picture circle. When clicked, users can:
+1. Select an image from their device gallery
+2. The image is compressed to 85% quality for optimal storage
+3. The image is saved locally to the device's temporary directory at: `{system-temp}/chikibite_profile_pictures/{uid}.jpg`
+4. The profile picture updates immediately in the UI
+5. On subsequent visits, the locally saved picture is automatically loaded and displayed
+
+**Implementation Details:**
+```dart
+// State variables
+String? _localProfilePicture;     // Path to saved local profile picture
+bool _isPickingImage = false;     // Flag to prevent concurrent image picker calls
+
+// Methods
+Future<void> _loadLocalProfilePicture()  // Loads saved picture on init
+Future<void> _pickProfilePicture()       // Handles image selection & save
+```
+
+**Image Display Priority:**
+1. Local profile picture (if exists) → Shows user-uploaded image
+2. Firebase photoUrl (if local doesn't exist) → Shows cloud storage image
+3. Default person icon → Fallback placeholder
+
+**Technical Implementation:**
+```dart
+child: _localProfilePicture != null
+    ? ClipOval(child: Image.file(File(_localProfilePicture!), ...))
+    : _currentUser?.photoUrl != null
+        ? ClipOval(child: Image.network(_currentUser!.photoUrl!, ...))
+        : Icon(Icons.person, ...)
+```
+
+The camera button is now fully functional and calls `_pickProfilePicture()` instead of showing a "coming soon" message.
 
 #### **RewardScreen** (`screens/reward_screen.dart`)
 - Loyalty points balance
@@ -625,6 +689,47 @@ firestore/
 - recent_searches (list of search history)
 ```
 
+### Profile Picture Local Storage
+
+Profile pictures are stored **locally on the device** in the system temporary directory for development/testing purposes. **NOT in the project folder.**
+
+**Storage Location (Device Storage):**
+```
+{device-system-temp}/chikibite_profile_pictures/{uid}.jpg
+```
+
+**Platform-Specific Paths:**
+- **Android Device:** `/data/local/tmp/chikibite_profile_pictures/{uid}.jpg`
+- **iOS Device:** App's temp directory on the device
+- **Windows PC (Dev):** `C:\Users\[username]\AppData\Local\Temp\chikibite_profile_pictures\{uid}.jpg`
+
+**Important:** These are device-specific locations, NOT the Flutter project folder. Each device stores its own copy of the profile pictures.
+
+**Implementation:**
+```dart
+// Save profile picture (to device storage, not project)
+final tempDir = Directory.systemTemp;  // Gets device's temp directory
+final profileDir = Directory('${tempDir.path}/chikibite_profile_pictures');
+final savedImage = await imageFile.copy('${profileDir.path}/$uid.jpg');
+
+// Load profile picture (from device storage)
+final profileImageFile = File('${profileDir.path}/$uid.jpg');
+if (profileImageFile.existsSync()) {
+  return profileImageFile.path;  // Returns device file path
+}
+```
+
+**Features:**
+- One picture per user (identified by UID)
+- Stored on the device, persists across app restarts
+- Automatically overwrites previous picture when new one is uploaded
+- 85% image quality compression for storage efficiency
+- Prevents concurrent image picker calls with `_isPickingImage` flag
+- Graceful fallback to Firebase photoUrl if local picture unavailable
+
+**Future Migration Note:**
+In production, profile pictures should be uploaded to Firebase Cloud Storage instead of storing locally.
+
 ### Real-time Persistence
 
 Firestore is configured with offline persistence enabled in `main.dart`:
@@ -648,7 +753,7 @@ This allows the app to work offline and sync when reconnected.
 ### 2. **User Profiles**
 - Complete user profile management
 - Multiple delivery addresses with default selection
-- Profile picture upload
+- Profile picture upload with local storage
 - Personal information updates
 
 ### 3. **Food Browsing & Ordering**
@@ -691,7 +796,11 @@ This allows the app to work offline and sync when reconnected.
 - Real-time delivery tracking
 
 ### 9. **Media Handling**
-- Profile picture upload from camera/gallery
+- Profile picture upload from camera/gallery with real-time preview
+- Local profile picture storage in device temporary directory
+- Image compression (85% quality) for optimized storage
+- Three-tier image display system (local → cloud → default icon)
+- Persistent image loading across app sessions
 - Image display in food items
 - Custom map markers
 
