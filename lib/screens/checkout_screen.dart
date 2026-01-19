@@ -1327,7 +1327,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> with WidgetsBindingObse
           ),
           const SizedBox(height: 24),
           ElevatedButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const MainScreen(initialIndex: 1),
+              ),
+            ),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.orange[800],
               foregroundColor: Colors.white,
