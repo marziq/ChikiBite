@@ -213,7 +213,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '\$${item.price.toStringAsFixed(2)}',
+                        '\RM${item.price.toStringAsFixed(2)}',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: Colors.orange[700],

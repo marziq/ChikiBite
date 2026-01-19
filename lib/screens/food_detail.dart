@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import '../services/cart_service.dart';
+import '../services/profile_service.dart';
 
 class FoodDetailScreen extends StatefulWidget {
   final String itemId;
@@ -46,6 +48,81 @@ class FoodDetailScreen extends StatefulWidget {
 
 class _FoodDetailScreenState extends State<FoodDetailScreen> {
   int quantity = 1;
+  bool _isFavorite = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkIfFavorite();
+  }
+
+  Future<void> _checkIfFavorite() async {
+    final uid = firebase_auth.FirebaseAuth.instance.currentUser?.uid;
+    if (uid != null) {
+      try {
+        final user = await profileService.getUserProfileOnce(uid);
+        if (mounted) {
+          setState(() {
+            _isFavorite = user?.favoriteItems?.contains(widget.itemId) ?? false;
+          });
+        }
+      } catch (e) {
+        // Handle error silently
+      }
+    }
+  }
+
+  Future<void> _toggleFavorite() async {
+    final uid = firebase_auth.FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please sign in to add favorites'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    try {
+      if (_isFavorite) {
+        await profileService.removeFavorite(uid, widget.itemId);
+        if (mounted) {
+          setState(() {
+            _isFavorite = false;
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Removed from favorites'),
+              backgroundColor: Colors.orange,
+            ),
+          );
+        }
+      } else {
+        await profileService.addFavorite(uid, widget.itemId);
+        if (mounted) {
+          setState(() {
+            _isFavorite = true;
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Added to favorites'),
+              backgroundColor: Colors.orange,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -92,10 +169,11 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
                   ],
                 ),
                 child: IconButton(
-                  icon: Icon(Icons.favorite_border, color: Colors.orange[800]),
-                  onPressed: () {
-                    // Add to favorites
-                  },
+                  icon: Icon(
+                    _isFavorite ? Icons.favorite : Icons.favorite_border,
+                    color: _isFavorite ? Colors.red : Colors.orange[800],
+                  ),
+                  onPressed: _toggleFavorite,
                 ),
               ),
             ],
@@ -404,10 +482,11 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
                   border: Border.all(color: Colors.orange[300]!),
                 ),
                 child: IconButton(
-                  icon: Icon(Icons.favorite_border, color: Colors.orange[800]),
-                  onPressed: () {
-                    // Add to favorites
-                  },
+                  icon: Icon(
+                    _isFavorite ? Icons.favorite : Icons.favorite_border,
+                    color: _isFavorite ? Colors.red : Colors.orange[800],
+                  ),
+                  onPressed: _toggleFavorite,
                 ),
               ),
             ),
