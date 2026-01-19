@@ -177,7 +177,7 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               child: Text(
-                                widget.category,
+                                widget.category[0].toUpperCase() + widget.category.substring(1),
                                 style: TextStyle(
                                   color: Colors.orange[800],
                                   fontWeight: FontWeight.w600,
@@ -187,36 +187,6 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
                             ),
                           ],
                         ),
-                      ),
-                      Column(
-                        children: [
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.star_rounded,
-                                color: Colors.orange[700],
-                                size: 24,
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                widget.rating.toString(),
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 18,
-                                  color: Colors.orange[800],
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            '${widget.reviews} reviews',
-                            style: TextStyle(
-                              color: Colors.grey[600],
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
                       ),
                     ],
                   ),
