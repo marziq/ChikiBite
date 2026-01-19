@@ -7,10 +7,6 @@ import '../services/voucher_service.dart';
 import '../models/promo_code.dart';
 import '../models/voucher.dart'
     show
-        Voucher,
-        VoucherType,
-        VoucherStatus,
-        RedemptionOption,
         IconType,
         redemptionOptions;
 import 'login_screen.dart';
@@ -365,8 +361,6 @@ class _RewardScreenState extends State<RewardScreen> {
   }
 
   Widget _buildPointsCard() {
-    final pointsToNext = 500 - (_userPoints % 500);
-    final progress = (_userPoints % 500) / 500;
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(20),
