@@ -89,10 +89,21 @@ class AboutScreen extends StatelessWidget {
                 width: 2,
               ),
             ),
-            child: Icon(
-              Icons.restaurant,
-              size: 60,
-              color: Colors.orange[800],
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(18),
+              child: Image.asset(
+                'assets/img/logo.png',
+                width: 100,
+                height: 100,
+                fit: BoxFit.contain,
+                errorBuilder: (context, error, stackTrace) {
+                  return Icon(
+                    Icons.restaurant,
+                    size: 60,
+                    color: Colors.orange[800],
+                  );
+                },
+              ),
             ),
           ),
           const SizedBox(height: 16),
