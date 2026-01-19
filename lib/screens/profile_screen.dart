@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:io';
 import '../services/auth_service.dart';
 import '../services/profile_service.dart';
 import '../models/user.dart' as app_user;
@@ -209,29 +210,64 @@ class ProfileScreen extends StatelessWidget {
                   child: Column(
                     children: [
                       // Profile Picture
-                      Container(
-                        width: 100,
-                        height: 100,
-                        decoration: BoxDecoration(
-                          color: Colors.orange[100],
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: Colors.orange[300]!,
-                            width: 3,
-                          ),
-                        ),
-                        child: user.photoURL != null
-                            ? ClipOval(
-                                child: Image.network(
-                                  user.photoURL!,
-                                  fit: BoxFit.cover,
-                                ),
-                              )
-                            : Icon(
-                                Icons.person,
-                                size: 60,
-                                color: Colors.orange[800],
+                      FutureBuilder<String?>(
+                        future: _loadLocalProfilePicture(user.uid),
+                        builder: (context, snapshot) {
+                          final localProfilePicture = snapshot.data;
+                          
+                          return Container(
+                            width: 100,
+                            height: 100,
+                            decoration: BoxDecoration(
+                              color: Colors.orange[100],
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: Colors.orange[300]!,
+                                width: 3,
                               ),
+                            ),
+                            child: localProfilePicture != null
+                                ? ClipOval(
+                                    child: Image.file(
+                                      File(localProfilePicture),
+                                      fit: BoxFit.cover,
+                                      errorBuilder:
+                                          (context, error, stackTrace) {
+                                            return user.photoURL != null
+                                                ? Image.network(
+                                                    user.photoURL!,
+                                                    fit: BoxFit.cover,
+                                                  )
+                                                : Icon(
+                                                    Icons.person,
+                                                    size: 60,
+                                                    color: Colors.orange[800],
+                                                  );
+                                          },
+                                    ),
+                                  )
+                                : user.photoURL != null
+                                    ? ClipOval(
+                                        child: Image.network(
+                                          user.photoURL!,
+                                          fit: BoxFit.cover,
+                                          errorBuilder:
+                                              (context, error, stackTrace) {
+                                                return Icon(
+                                                  Icons.person,
+                                                  size: 60,
+                                                  color: Colors.orange[800],
+                                                );
+                                              },
+                                        ),
+                                      )
+                                    : Icon(
+                                        Icons.person,
+                                        size: 60,
+                                        color: Colors.orange[800],
+                                      ),
+                          );
+                        },
                       ),
                       const SizedBox(height: 16),
                       FutureBuilder<app_user.User?>(
@@ -470,6 +506,22 @@ class ProfileScreen extends StatelessWidget {
         style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
       ),
     );
+  }
+
+  Future<String?> _loadLocalProfilePicture(String uid) async {
+    try {
+      final tempDir = Directory.systemTemp;
+      final profileDir = Directory('${tempDir.path}/chikibite_profile_pictures');
+      final profileImageFile = File('${profileDir.path}/$uid.jpg');
+
+      if (profileImageFile.existsSync()) {
+        return profileImageFile.path;
+      }
+      return null;
+    } catch (e) {
+      print('Error loading local profile picture: $e');
+      return null;
+    }
   }
 
   Widget _buildMenuItem(

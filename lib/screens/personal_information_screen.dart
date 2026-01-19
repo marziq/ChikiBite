@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
+import 'package:path/path.dart' as path;
 import '../services/profile_service.dart';
 import '../models/user.dart' as app_user;
 
@@ -18,12 +21,15 @@ class _PersonalInformationScreenState extends State<PersonalInformationScreen> {
   final _phoneController = TextEditingController();
 
   bool _isLoading = false;
+  bool _isPickingImage = false;
   app_user.User? _currentUser;
+  String? _localProfilePicture;
 
   @override
   void initState() {
     super.initState();
     _loadUserData();
+    _loadLocalProfilePicture();
   }
 
   Future<void> _loadUserData() async {
@@ -38,6 +44,83 @@ class _PersonalInformationScreenState extends State<PersonalInformationScreen> {
           _phoneController.text = user.phone ?? '';
         });
       }
+    }
+  }
+
+  Future<void> _loadLocalProfilePicture() async {
+    try {
+      final uid = firebase_auth.FirebaseAuth.instance.currentUser?.uid;
+      if (uid != null) {
+        // Get the temp directory for profile pictures
+        final tempDir = Directory.systemTemp;
+        final profileDir = Directory('${tempDir.path}/chikibite_profile_pictures');
+        final profileImageFile = File('${profileDir.path}/$uid.jpg');
+
+        if (profileImageFile.existsSync()) {
+          if (mounted) {
+            setState(() {
+              _localProfilePicture = profileImageFile.path;
+            });
+          }
+        }
+      }
+    } catch (e) {
+      print('Error loading local profile picture: $e');
+    }
+  }
+
+  Future<void> _pickProfilePicture() async {
+    // Prevent multiple concurrent image picker calls
+    if (_isPickingImage) return;
+    
+    try {
+      _isPickingImage = true;
+      final ImagePicker picker = ImagePicker();
+      final XFile? pickedFile = await picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 85,
+      );
+
+      if (pickedFile != null) {
+        final uid = firebase_auth.FirebaseAuth.instance.currentUser?.uid;
+        if (uid != null) {
+          // Create profile-picture directory in temp
+          final tempDir = Directory.systemTemp;
+          final profileDir = Directory('${tempDir.path}/chikibite_profile_pictures');
+          
+          if (!profileDir.existsSync()) {
+            profileDir.createSync(recursive: true);
+          }
+
+          // Save the image
+          final File imageFile = File(pickedFile.path);
+          final fileName = '$uid.jpg';
+          final savedImage = await imageFile.copy('${profileDir.path}/$fileName');
+
+          if (mounted) {
+            setState(() {
+              _localProfilePicture = savedImage.path;
+            });
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Profile picture updated successfully!'),
+                backgroundColor: Colors.green,
+              ),
+            );
+          }
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error uploading picture: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      _isPickingImage = false;
     }
   }
 
@@ -122,10 +205,10 @@ class _PersonalInformationScreenState extends State<PersonalInformationScreen> {
                                 width: 3,
                               ),
                             ),
-                            child: _currentUser?.photoUrl != null
+                            child: _localProfilePicture != null
                                 ? ClipOval(
-                                    child: Image.network(
-                                      _currentUser!.photoUrl!,
+                                    child: Image.file(
+                                      File(_localProfilePicture!),
                                       fit: BoxFit.cover,
                                       errorBuilder:
                                           (context, error, stackTrace) {
@@ -137,11 +220,26 @@ class _PersonalInformationScreenState extends State<PersonalInformationScreen> {
                                           },
                                     ),
                                   )
-                                : Icon(
-                                    Icons.person,
-                                    size: 60,
-                                    color: Colors.orange[800],
-                                  ),
+                                : _currentUser?.photoUrl != null
+                                    ? ClipOval(
+                                        child: Image.network(
+                                          _currentUser!.photoUrl!,
+                                          fit: BoxFit.cover,
+                                          errorBuilder:
+                                              (context, error, stackTrace) {
+                                                return Icon(
+                                                  Icons.person,
+                                                  size: 60,
+                                                  color: Colors.orange[800],
+                                                );
+                                              },
+                                        ),
+                                      )
+                                    : Icon(
+                                        Icons.person,
+                                        size: 60,
+                                        color: Colors.orange[800],
+                                      ),
                           ),
                           Positioned(
                             bottom: 0,
@@ -155,16 +253,7 @@ class _PersonalInformationScreenState extends State<PersonalInformationScreen> {
                                   size: 18,
                                   color: Colors.white,
                                 ),
-                                onPressed: () {
-                                  // TODO: Implement image picker
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text(
-                                        'Photo upload feature coming soon!',
-                                      ),
-                                    ),
-                                  );
-                                },
+                                onPressed: _pickProfilePicture,
                               ),
                             ),
                           ),
