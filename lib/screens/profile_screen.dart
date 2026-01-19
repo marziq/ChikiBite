@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../services/auth_service.dart';
+import '../services/profile_service.dart';
+import '../models/user.dart' as app_user;
 import 'login_screen.dart';
 import 'register_screen.dart';
 import 'personal_information_screen.dart';
@@ -234,11 +236,19 @@ class ProfileScreen extends StatelessWidget {
                               ),
                       ),
                       const SizedBox(height: 16),
-                      Text(
-                        user.displayName ?? 'No name',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                      FutureBuilder<app_user.User?>(
+                        future: profileService.getUserProfileOnce(user.uid),
+                        builder: (context, profileSnapshot) {
+                          final displayName = user.displayName ?? 
+                                            (profileSnapshot.data?.name) ??
+                                            'No name';
+                          return Text(
+                            displayName,
+                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          );
+                        },
                       ),
                       const SizedBox(height: 4),
                       Text(

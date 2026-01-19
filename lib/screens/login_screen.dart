@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
+import 'home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -27,15 +28,74 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => _loading = true);
     try {
       await AuthService.signIn(_emailCtrl.text.trim(), _passwordCtrl.text);
-      if (mounted) Navigator.pop(context);
+      if (mounted) {
+        Navigator.pushReplacementNamed(context, '/');
+      }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(e.toString()),
-          backgroundColor: Colors.red,
-          duration: const Duration(seconds: 4),
-        ),
-      );
+      String errorMessage = e.toString();
+      
+      // Check if it's an email verification error
+      if (e.toString().contains('email-not-verified')) {
+        if (mounted) {
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Text('Email Not Verified'),
+              content: const Text(
+                'Please verify your email before signing in. Check your inbox for the verification link. Would you like us to resend it?',
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () async {
+                    Navigator.pop(context);
+                    try {
+                      // Try to get the user and resend verification email
+                      final user = AuthService.currentUser;
+                      if (user != null) {
+                        await user.sendEmailVerification();
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Verification email sent! Check your inbox.'),
+                              backgroundColor: Colors.green,
+                              duration: Duration(seconds: 3),
+                            ),
+                          );
+                        }
+                      }
+                    } catch (resendError) {
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Error sending email: $resendError'),
+                            backgroundColor: Colors.red,
+                            duration: const Duration(seconds: 4),
+                          ),
+                        );
+                      }
+                    }
+                  },
+                  child: const Text('Resend Email'),
+                ),
+              ],
+            ),
+          );
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(errorMessage),
+              backgroundColor: Colors.red,
+              duration: const Duration(seconds: 4),
+            ),
+          );
+        }
+      }
     } finally {
       if (mounted) setState(() => _loading = false);
     }

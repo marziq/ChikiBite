@@ -14,6 +14,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _emailCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
   final _nameCtrl = TextEditingController();
+  final _phoneCtrl = TextEditingController();
   bool _loading = false;
   bool _obscurePassword = true;
 
@@ -22,6 +23,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _emailCtrl.dispose();
     _passwordCtrl.dispose();
     _nameCtrl.dispose();
+    _phoneCtrl.dispose();
     super.dispose();
   }
 
@@ -40,16 +42,50 @@ class _RegisterScreenState extends State<RegisterScreen> {
         await cred.user?.reload();
       }
       
+      // Send email verification
+      if (cred.user != null && !cred.user!.emailVerified) {
+        try {
+          await cred.user?.sendEmailVerification();
+        } catch (emailError) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  'Note: Email verification could not be sent. Error: $emailError',
+                ),
+                backgroundColor: Colors.orange,
+                duration: const Duration(seconds: 5),
+              ),
+            );
+          }
+        }
+      }
+      
       // Create user document in Firestore
       if (cred.user != null) {
         await profileService.createUserProfile(
           uid: cred.user!.uid,
           name: _nameCtrl.text.trim(),
           email: _emailCtrl.text.trim(),
+          phone: _phoneCtrl.text.trim().isEmpty ? null : _phoneCtrl.text.trim(),
         );
       }
       
-      if (mounted) Navigator.pop(context);
+      // Sign out the user so they need to login after verifying email
+      await AuthService.signOut();
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text(
+              'Account created! Please verify your email before signing in.',
+            ),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 5),
+          ),
+        );
+        Navigator.pop(context);
+      }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -231,6 +267,43 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           validator: (v) => v != null && v.contains('@')
                               ? null
                               : 'Enter a valid email',
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Phone Number Field
+                        TextFormField(
+                          controller: _phoneCtrl,
+                          keyboardType: TextInputType.phone,
+                          decoration: InputDecoration(
+                            labelText: 'Phone Number',
+                            hintText: '+1 234 567 8900',
+                            prefixIcon: Icon(
+                              Icons.phone_outlined,
+                              color: Colors.orange[700],
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: const BorderSide(
+                                color: Colors.transparent,
+                              ),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(
+                                color: Colors.orange[200]!,
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(
+                                color: Colors.orange[700]!,
+                                width: 2,
+                              ),
+                            ),
+                            filled: true,
+                            fillColor: Colors.white.withOpacity(0.7),
+                            labelStyle: const TextStyle(color: Colors.grey),
+                          ),
                         ),
                         const SizedBox(height: 16),
 
