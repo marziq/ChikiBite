@@ -25,18 +25,22 @@ class _HomeScreenState extends State<HomeScreen> {
     {
       'title': 'Special Offer!',
       'subtitle': 'Get 10% off on your first order',
+      'image': 'assets/img/offer_1.png',
     },
     {
       'title': 'Free Delivery!',
       'subtitle': 'On orders above RM 30',
+      'image': 'assets/img/offer_2.png',
     },
     {
       'title': 'Weekend Combo',
       'subtitle': 'Buy 2 get 1 free on selected items',
+      'image': 'assets/img/offer_3.png',
     },
     {
       'title': 'Flash Sale!',
       'subtitle': 'Limited time - Save up to 20%',
+      'image': 'assets/img/offer_4.png',
     },
   ];
 
@@ -45,7 +49,7 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     _pageController = PageController(viewportFraction: 0.85);
     _bannerController = PageController();
-    
+
     // Start banner auto-scroll after a short delay to ensure widgets are built
     Future.delayed(const Duration(milliseconds: 500), () {
       if (mounted) {
@@ -84,10 +88,8 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Image.asset(
               'assets/img/logo.png',
               fit: BoxFit.contain,
-              errorBuilder: (context, error, stackTrace) => Icon(
-                Icons.fastfood,
-                color: Colors.orange[800],
-              ),
+              errorBuilder: (context, error, stackTrace) =>
+                  Icon(Icons.fastfood, color: Colors.orange[800]),
             ),
           ),
         ),
@@ -132,7 +134,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.shopping_cart, color: Colors.white, size: 20),
+                        Icon(
+                          Icons.shopping_cart,
+                          color: Colors.white,
+                          size: 20,
+                        ),
                         if (cartService.items.isNotEmpty) ...[
                           const SizedBox(width: 4),
                           Text(
@@ -176,363 +182,401 @@ class _HomeScreenState extends State<HomeScreen> {
                       fontStyle: FontStyle.italic,
                     ),
                   ),
-                const SizedBox(height: 24),
-                // Banner/Offer Section with Slide Animation
-                SizedBox(
-                  height: 180,
-                  child: Stack(
-                    children: [
-                      PageView.builder(
-                        controller: _bannerController,
-                        onPageChanged: (index) {
-                          setState(() {
-                            _currentBannerPage = index;
-                          });
-                        },
-                        itemCount: _offers.length,
-                        itemBuilder: (context, index) {
-                          final offer = _offers[index];
-                          return Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 8),
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [Colors.orange[400]!, Colors.orange[700]!],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
-                              borderRadius: BorderRadius.circular(16),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.orange.withOpacity(0.3),
-                                  spreadRadius: 2,
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 4),
+                  const SizedBox(height: 24),
+                  // Banner/Offer Section with Slide Animation
+                  SizedBox(
+                    height: 180,
+                    child: Stack(
+                      children: [
+                        PageView.builder(
+                          controller: _bannerController,
+                          onPageChanged: (index) {
+                            setState(() {
+                              _currentBannerPage = index;
+                            });
+                          },
+                          itemCount: _offers.length,
+                          itemBuilder: (context, index) {
+                            final offer = _offers[index];
+                            return Container(
+                              margin: const EdgeInsets.symmetric(horizontal: 8),
+                              decoration: BoxDecoration(
+                                image: DecorationImage(
+                                  image: AssetImage(offer['image']!),
+                                  fit: BoxFit.cover,
+                                  onError: (exception, stackTrace) {},
                                 ),
-                              ],
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(20.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    offer['title']!,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .headlineSmall
-                                        ?.copyWith(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    offer['subtitle']!,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyLarge
-                                        ?.copyWith(color: Colors.white),
+                                gradient: LinearGradient(
+                                  colors: [
+                                    Colors.orange[400]!.withOpacity(0.6),
+                                    Colors.orange[700]!.withOpacity(0.6),
+                                  ],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.orange.withOpacity(0.3),
+                                    spreadRadius: 2,
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 4),
                                   ),
                                 ],
                               ),
-                            ),
-                          );
-                        },
-                      ),
-                      // Dot Indicators at the bottom
-                      Positioned(
-                        bottom: 12,
-                        left: 0,
-                        right: 0,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: List.generate(
-                            _offers.length,
-                            (index) => Container(
-                              width: _currentBannerPage == index ? 24 : 8,
-                              height: 8,
-                              margin: const EdgeInsets.symmetric(horizontal: 4),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(4),
-                                color: _currentBannerPage == index
-                                    ? Colors.white
-                                    : Colors.white.withOpacity(0.5),
+                              child: Padding(
+                                padding: const EdgeInsets.all(20.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      offer['title']!,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .headlineSmall
+                                          ?.copyWith(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                            shadows: [
+                                              Shadow(
+                                                offset: const Offset(1, 1),
+                                                blurRadius: 3,
+                                                color: Colors.black.withOpacity(
+                                                  0.5,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      offer['subtitle']!,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodyLarge
+                                          ?.copyWith(
+                                            color: Colors.white,
+                                            shadows: [
+                                              Shadow(
+                                                offset: const Offset(1, 1),
+                                                blurRadius: 2,
+                                                color: Colors.black.withOpacity(
+                                                  0.5,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                        // Dot Indicators at the bottom
+                        Positioned(
+                          bottom: 12,
+                          left: 0,
+                          right: 0,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: List.generate(
+                              _offers.length,
+                              (index) => Container(
+                                width: _currentBannerPage == index ? 24 : 8,
+                                height: 8,
+                                margin: const EdgeInsets.symmetric(
+                                  horizontal: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(4),
+                                  color: _currentBannerPage == index
+                                      ? Colors.white
+                                      : Colors.white.withOpacity(0.5),
+                                ),
                               ),
                             ),
                           ),
                         ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+
+                  // Popular Items Section
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Popular Items',
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () {},
+                        child: const Text('See All'),
                       ),
                     ],
                   ),
-                ),
-                const SizedBox(height: 32),
-
-                // Popular Items Section
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Popular Items',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    TextButton(onPressed: () {}, child: const Text('See All')),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                SizedBox(
-                  height: 280,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: 5,
-                    itemBuilder: (context, index) {
-                      final popularItems = [
-                        menuItems[0], // Chicken Burger
-                        menuItems[1], // Spicy Chicken Burger
-                        menuItems[4], // ChickZilla Burger
-                        menuItems[5], // 2-Piece Crispy Chicken
-                        menuItems[17], // French Fries
-                      ];
-                      final item = popularItems[index];
-                      return GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => FoodDetailScreen(
-                                itemId: item.itemID,
-                                foodName: item.name,
-                                description: item.description,
-                                price: item.price,
-                                category: item.category,
-                                imagePath: item.imagePath,
-                                ingredients: item.ingredients,
-                                calories: item.calories,
-                                protein: item.protein,
-                                fat: item.fat,
-                                carbs: item.carbs,
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    height: 280,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: 5,
+                      itemBuilder: (context, index) {
+                        final popularItems = [
+                          menuItems[0], // Chicken Burger
+                          menuItems[1], // Spicy Chicken Burger
+                          menuItems[4], // ChickZilla Burger
+                          menuItems[5], // 2-Piece Crispy Chicken
+                          menuItems[17], // French Fries
+                        ];
+                        final item = popularItems[index];
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => FoodDetailScreen(
+                                  itemId: item.itemID,
+                                  foodName: item.name,
+                                  description: item.description,
+                                  price: item.price,
+                                  category: item.category,
+                                  imagePath: item.imagePath,
+                                  ingredients: item.ingredients,
+                                  calories: item.calories,
+                                  protein: item.protein,
+                                  fat: item.fat,
+                                  carbs: item.carbs,
+                                ),
                               ),
+                            );
+                          },
+                          child: Container(
+                            width: 180,
+                            margin: const EdgeInsets.only(right: 16),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(16),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.grey.withOpacity(0.1),
+                                  spreadRadius: 2,
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
                             ),
-                          );
-                        },
-                        child: Container(
-                          width: 180,
-                          margin: const EdgeInsets.only(right: 16),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(16),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.withOpacity(0.1),
-                                spreadRadius: 2,
-                                blurRadius: 8,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Container(
-                                height: 180,
-                                decoration: BoxDecoration(
-                                  color: Colors.orange[100],
-                                  borderRadius: const BorderRadius.only(
-                                    topLeft: Radius.circular(16),
-                                    topRight: Radius.circular(16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Container(
+                                  height: 180,
+                                  decoration: BoxDecoration(
+                                    color: Colors.orange[100],
+                                    borderRadius: const BorderRadius.only(
+                                      topLeft: Radius.circular(16),
+                                      topRight: Radius.circular(16),
+                                    ),
                                   ),
-                                ),
-                                child: ClipRRect(
-                                  borderRadius: const BorderRadius.only(
-                                    topLeft: Radius.circular(16),
-                                    topRight: Radius.circular(16),
-                                  ),
-                                  child: Image.asset(
-                                    item.imagePath,
-                                    fit: BoxFit.cover,
-                                    errorBuilder:
-                                        (context, error, stackTrace) => Icon(
-                                          Icons.fastfood,
-                                          size: 60,
-                                          color: Colors.orange[700],
-                                        ),
-                                  ),
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.all(12.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      item.name,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .titleMedium
-                                          ?.copyWith(
-                                            fontWeight: FontWeight.bold,
+                                  child: ClipRRect(
+                                    borderRadius: const BorderRadius.only(
+                                      topLeft: Radius.circular(16),
+                                      topRight: Radius.circular(16),
+                                    ),
+                                    child: Image.asset(
+                                      item.imagePath,
+                                      fit: BoxFit.cover,
+                                      errorBuilder:
+                                          (context, error, stackTrace) => Icon(
+                                            Icons.fastfood,
+                                            size: 60,
+                                            color: Colors.orange[700],
                                           ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
                                     ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      'RM ${item.price.toStringAsFixed(2)}',
-                                      style: TextStyle(
-                                        color: Colors.orange[800],
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
-                                      ),
-                                    ),
-                                  ],
+                                  ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-                const SizedBox(height: 32),
-
-                // Recommended Dishes Section
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Recommended',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    TextButton(onPressed: () {}, child: const Text('See All')),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                SizedBox(
-                  height: 280,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: 5,
-                    itemBuilder: (context, index) {
-                      final recommendedItems = [
-                        menuItems[2], // Triple Cheesy Burger
-                        menuItems[9], // Chocolate Lava Cake
-                        menuItems[14], // Chocolate Milkshake
-                        menuItems[16], // Chicken Nugget
-                        menuItems[19], // Onion Rings
-                      ];
-                      final item = recommendedItems[index];
-                      return GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => FoodDetailScreen(
-                                itemId: item.itemID,
-                                foodName: item.name,
-                                description: item.description,
-                                price: item.price,
-                                category: item.category,
-                                imagePath: item.imagePath,
-                                ingredients: item.ingredients,
-                                calories: item.calories,
-                                protein: item.protein,
-                                fat: item.fat,
-                                carbs: item.carbs,
-                              ),
+                                Padding(
+                                  padding: const EdgeInsets.all(12.0),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        item.name,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .titleMedium
+                                            ?.copyWith(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        'RM ${item.price.toStringAsFixed(2)}',
+                                        style: TextStyle(
+                                          color: Colors.orange[800],
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
                             ),
-                          );
-                        },
-                        child: Container(
-                          width: 180,
-                          margin: const EdgeInsets.only(right: 16),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(16),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.withOpacity(0.1),
-                                spreadRadius: 2,
-                                blurRadius: 8,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
                           ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Container(
-                                height: 180,
-                                decoration: BoxDecoration(
-                                  color: Colors.orange[100],
-                                  borderRadius: const BorderRadius.only(
-                                    topLeft: Radius.circular(16),
-                                    topRight: Radius.circular(16),
-                                  ),
-                                ),
-                                child: ClipRRect(
-                                  borderRadius: const BorderRadius.only(
-                                    topLeft: Radius.circular(16),
-                                    topRight: Radius.circular(16),
-                                  ),
-                                  child: Image.asset(
-                                    item.imagePath,
-                                    fit: BoxFit.cover,
-                                    errorBuilder:
-                                        (context, error, stackTrace) => Icon(
-                                          Icons.restaurant_menu,
-                                          size: 60,
-                                          color: Colors.orange[700],
-                                        ),
-                                  ),
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.all(12.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      item.name,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .titleMedium
-                                          ?.copyWith(
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      'RM ${item.price.toStringAsFixed(2)}',
-                                      style: TextStyle(
-                                        color: Colors.orange[800],
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
+                        );
+                      },
+                    ),
                   ),
-                ),
-                const SizedBox(height: 24),
-              ],
+                  const SizedBox(height: 32),
+
+                  // Recommended Dishes Section
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Recommended',
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () {},
+                        child: const Text('See All'),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    height: 280,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: 5,
+                      itemBuilder: (context, index) {
+                        final recommendedItems = [
+                          menuItems[2], // Triple Cheesy Burger
+                          menuItems[9], // Chocolate Lava Cake
+                          menuItems[14], // Chocolate Milkshake
+                          menuItems[16], // Chicken Nugget
+                          menuItems[19], // Onion Rings
+                        ];
+                        final item = recommendedItems[index];
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => FoodDetailScreen(
+                                  itemId: item.itemID,
+                                  foodName: item.name,
+                                  description: item.description,
+                                  price: item.price,
+                                  category: item.category,
+                                  imagePath: item.imagePath,
+                                  ingredients: item.ingredients,
+                                  calories: item.calories,
+                                  protein: item.protein,
+                                  fat: item.fat,
+                                  carbs: item.carbs,
+                                ),
+                              ),
+                            );
+                          },
+                          child: Container(
+                            width: 180,
+                            margin: const EdgeInsets.only(right: 16),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(16),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.grey.withOpacity(0.1),
+                                  spreadRadius: 2,
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Container(
+                                  height: 180,
+                                  decoration: BoxDecoration(
+                                    color: Colors.orange[100],
+                                    borderRadius: const BorderRadius.only(
+                                      topLeft: Radius.circular(16),
+                                      topRight: Radius.circular(16),
+                                    ),
+                                  ),
+                                  child: ClipRRect(
+                                    borderRadius: const BorderRadius.only(
+                                      topLeft: Radius.circular(16),
+                                      topRight: Radius.circular(16),
+                                    ),
+                                    child: Image.asset(
+                                      item.imagePath,
+                                      fit: BoxFit.cover,
+                                      errorBuilder:
+                                          (context, error, stackTrace) => Icon(
+                                            Icons.restaurant_menu,
+                                            size: 60,
+                                            color: Colors.orange[700],
+                                          ),
+                                    ),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(12.0),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        item.name,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .titleMedium
+                                            ?.copyWith(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        'RM ${item.price.toStringAsFixed(2)}',
+                                        style: TextStyle(
+                                          color: Colors.orange[800],
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
-      )
     );
   }
 

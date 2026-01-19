@@ -5,7 +5,14 @@ import '../services/profile_service.dart';
 import '../services/promo_code_service.dart';
 import '../services/voucher_service.dart';
 import '../models/promo_code.dart';
-import '../models/voucher.dart' show Voucher, VoucherType, VoucherStatus, RedemptionOption, IconType, redemptionOptions;
+import '../models/voucher.dart'
+    show
+        Voucher,
+        VoucherType,
+        VoucherStatus,
+        RedemptionOption,
+        IconType,
+        redemptionOptions;
 import 'login_screen.dart';
 import 'register_screen.dart';
 
@@ -32,13 +39,13 @@ class _RewardScreenState extends State<RewardScreen> {
       try {
         // Load user profile for points
         final userProfile = await profileService.getUserProfileOnce(user.uid);
-        
+
         // Seed promo codes if needed
         await promoCodeService.seedPromoCodes();
-        
+
         // Fix existing promo codes to have perUserLimit
         await promoCodeService.fixPromoCodesPerUserLimit();
-        
+
         if (mounted) {
           setState(() {
             _userPoints = userProfile?.points ?? 0;
@@ -272,144 +279,167 @@ class _RewardScreenState extends State<RewardScreen> {
     return _isLoading
         ? const Center(child: CircularProgressIndicator())
         : SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Points Balance Display
-                  _buildPointsCard(),
-                  const SizedBox(height: 24),
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Points Balance Display
+                _buildPointsCard(),
+                const SizedBox(height: 24),
 
-                  // Points Info Section
-                  _buildPointsInfoCard(),
-                  const SizedBox(height: 24),
+                // Points Info Section
+                _buildPointsInfoCard(),
+                const SizedBox(height: 24),
 
-                  // Available Promo Codes Section
-                  Text(
-                    'Available Promo Codes',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
+                // Available Promo Codes Section
+                Text(
+                  'Available Promo Codes',
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Tap to copy, then use at checkout',
+                  style: TextStyle(color: Colors.grey[600], fontSize: 13),
+                ),
+                const SizedBox(height: 16),
+
+                // Promo Codes Stream
+                StreamBuilder<List<PromoCode>>(
+                  stream: promoCodeService.getActivePromoCodes(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(32.0),
+                          child: CircularProgressIndicator(),
                         ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Tap to copy, then use at checkout',
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                      fontSize: 13,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Promo Codes Stream
-                  StreamBuilder<List<PromoCode>>(
-                    stream: promoCodeService.getActivePromoCodes(),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(
-                          child: Padding(
-                            padding: EdgeInsets.all(32.0),
-                            child: CircularProgressIndicator(),
-                          ),
-                        );
-                      }
-
-                      final promoCodes = snapshot.data ?? [];
-
-                      if (promoCodes.isEmpty) {
-                        return _buildEmptyPromoState();
-                      }
-
-                      return ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: promoCodes.length,
-                        itemBuilder: (context, index) {
-                          return _buildPromoCodeCardWithUsageCheck(promoCodes[index]);
-                        },
                       );
-                    },
-                  ),
-                  const SizedBox(height: 24),
+                    }
 
-                  // Redeemable Items Section
-                  Text(
-                    'Redeem Points',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                  const SizedBox(height: 16),
-                  _buildRedeemableItemsGrid(),
-                  const SizedBox(height: 32),
+                    final promoCodes = snapshot.data ?? [];
 
-                  // Points History Section
-                  Text(
-                    'Recent Activity',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                  const SizedBox(height: 16),
-                  _buildPointsHistorySection(),
-                  const SizedBox(height: 24),
-                ],
-              ),
-            );
+                    if (promoCodes.isEmpty) {
+                      return _buildEmptyPromoState();
+                    }
+
+                    return ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: promoCodes.length,
+                      itemBuilder: (context, index) {
+                        return _buildPromoCodeCardWithUsageCheck(
+                          promoCodes[index],
+                        );
+                      },
+                    );
+                  },
+                ),
+                const SizedBox(height: 24),
+
+                // Redeemable Items Section
+                Text(
+                  'Redeem Points',
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 16),
+                _buildRedeemableItemsGrid(),
+                const SizedBox(height: 32),
+
+                // Points History Section
+                Text(
+                  'Recent Activity',
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 16),
+                _buildPointsHistorySection(),
+                const SizedBox(height: 24),
+              ],
+            ),
+          );
   }
 
   Widget _buildPointsCard() {
     final pointsToNext = 500 - (_userPoints % 500);
     final progress = (_userPoints % 500) / 500;
 
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Colors.orange[400]!, Colors.orange[700]!],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/img/reward_background.png'),
+            fit: BoxFit.contain,
+            alignment: Alignment.center,
+            onError: (exception, stackTrace) {},
+          ),
         ),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.orange.withOpacity(0.3),
-            spreadRadius: 2,
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Text(
-            'Your Reward Points',
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+        child: Container(
+          color: Colors.transparent,
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                'Your Reward Points',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   color: Colors.white,
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.w800,
+                  shadows: [
+                    Shadow(
+                      offset: const Offset(1, 1),
+                      blurRadius: 2,
+                      color: Colors.black.withOpacity(0.3),
+                    ),
+                  ],
                 ),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            _userPoints.toString().replaceAllMapped(
+              ),
+              const SizedBox(height: 8),
+              Text(
+                _userPoints.toString().replaceAllMapped(
                   RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
                   (Match m) => '${m[1]},',
                 ),
-            style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                style: Theme.of(context).textTheme.displayLarge?.copyWith(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
+                  fontSize: 70,
+                  shadows: [
+                    Shadow(
+                      offset: const Offset(1, 1),
+                      blurRadius: 3,
+                      color: Colors.black.withOpacity(0.3),
+                    ),
+                  ],
                 ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'points',
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: Colors.white.withOpacity(0.9),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                'POINTS',
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  shadows: [
+                    Shadow(
+                      offset: const Offset(1, 1),
+                      blurRadius: 2,
+                      color: Colors.black.withOpacity(0.3),
+                    ),
+                  ],
                 ),
+              ),
+              const SizedBox(height: 24),
+            ],
           ),
-          const SizedBox(height: 24),
-        ],
+        ),
       ),
     );
   }
@@ -441,7 +471,7 @@ class _RewardScreenState extends State<RewardScreen> {
                 Text(
                   'Earn 1 point for every RM 1 spent. Points can be redeemed for rewards!',
                   style: TextStyle(
-                    color: Colors.orange[900],
+                    color: const Color(0xFFE65100),
                     fontSize: 12,
                   ),
                 ),
@@ -474,10 +504,7 @@ class _RewardScreenState extends State<RewardScreen> {
           const SizedBox(height: 4),
           Text(
             'Check back later for new offers!',
-            style: TextStyle(
-              color: Colors.grey[500],
-              fontSize: 13,
-            ),
+            style: TextStyle(color: Colors.grey[500], fontSize: 13),
           ),
         ],
       ),
@@ -486,7 +513,7 @@ class _RewardScreenState extends State<RewardScreen> {
 
   Widget _buildPromoCodeCardWithUsageCheck(PromoCode promo) {
     final user = firebase_auth.FirebaseAuth.instance.currentUser;
-    
+
     if (user == null) {
       return _buildPromoCodeCard(promo, isUsed: false);
     }
@@ -530,7 +557,10 @@ class _RewardScreenState extends State<RewardScreen> {
                   children: [
                     // Left colored section with code
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 20,
+                      ),
                       decoration: BoxDecoration(
                         color: promoColor.withOpacity(0.1),
                         borderRadius: const BorderRadius.only(
@@ -541,106 +571,127 @@ class _RewardScreenState extends State<RewardScreen> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                        Icon(_getPromoIcon(promo.discountType), color: promoColor, size: 28),
-                        const SizedBox(height: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
+                          Icon(
+                            _getPromoIcon(promo.discountType),
                             color: promoColor,
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Text(
-                            promo.code,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
-                              letterSpacing: 1,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  // Right details section
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            promo.discountDescription,
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                              color: promoColor,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            promo.description,
-                            style: TextStyle(
-                              color: Colors.grey[700],
-                              fontSize: 13,
-                            ),
+                            size: 28,
                           ),
                           const SizedBox(height: 8),
-                          Wrap(
-                            spacing: 12,
-                            runSpacing: 4,
-                            children: [
-                              if (promo.minOrderAmount != null)
-                                Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(Icons.shopping_cart_outlined, 
-                                        size: 12, color: Colors.grey[500]),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      'Min RM${promo.minOrderAmount!.toStringAsFixed(0)}',
-                                      style: TextStyle(
-                                        color: Colors.grey[600],
-                                        fontSize: 11,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              if (promo.validUntil != null)
-                                Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(Icons.access_time, size: 12, color: Colors.grey[500]),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      'Until ${promo.validUntil!.day}/${promo.validUntil!.month}',
-                                      style: TextStyle(
-                                        color: Colors.grey[600],
-                                        fontSize: 11,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                            ],
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: promoColor,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(
+                              promo.code,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12,
+                                letterSpacing: 1,
+                              ),
+                            ),
                           ),
                         ],
                       ),
                     ),
-                  ),
-                  // Copy icon
-                  Padding(
-                    padding: const EdgeInsets.only(right: 12),
-                    child: Icon(Icons.copy, color: Colors.grey[400], size: 20),
-                  ),
-                ],
-              ),
+                    // Right details section
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              promo.discountDescription,
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                                color: promoColor,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              promo.description,
+                              style: TextStyle(
+                                color: Colors.grey[700],
+                                fontSize: 13,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Wrap(
+                              spacing: 12,
+                              runSpacing: 4,
+                              children: [
+                                if (promo.minOrderAmount != null)
+                                  Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        Icons.shopping_cart_outlined,
+                                        size: 12,
+                                        color: Colors.grey[500],
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        'Min RM${promo.minOrderAmount!.toStringAsFixed(0)}',
+                                        style: TextStyle(
+                                          color: Colors.grey[600],
+                                          fontSize: 11,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                if (promo.validUntil != null)
+                                  Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        Icons.access_time,
+                                        size: 12,
+                                        color: Colors.grey[500],
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        'Until ${promo.validUntil!.day}/${promo.validUntil!.month}',
+                                        style: TextStyle(
+                                          color: Colors.grey[600],
+                                          fontSize: 11,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    // Copy icon
+                    Padding(
+                      padding: const EdgeInsets.only(right: 12),
+                      child: Icon(
+                        Icons.copy,
+                        color: Colors.grey[400],
+                        size: 20,
+                      ),
+                    ),
+                  ],
+                ),
               ),
               // "Already Claimed" badge overlay
               if (isUsed)
                 Positioned.fill(
                   child: Center(
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.grey[800],
                         borderRadius: BorderRadius.circular(20),
@@ -648,7 +699,11 @@ class _RewardScreenState extends State<RewardScreen> {
                       child: const Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.check_circle, color: Colors.white, size: 16),
+                          Icon(
+                            Icons.check_circle,
+                            color: Colors.white,
+                            size: 16,
+                          ),
                           SizedBox(width: 8),
                           Text(
                             'Already Claimed',
@@ -742,9 +797,9 @@ class _RewardScreenState extends State<RewardScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 child: Text(
                   option.name,
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
                   textAlign: TextAlign.center,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -752,7 +807,10 @@ class _RewardScreenState extends State<RewardScreen> {
               ),
               const SizedBox(height: 6),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.orange[50],
                   borderRadius: BorderRadius.circular(20),
@@ -778,7 +836,8 @@ class _RewardScreenState extends State<RewardScreen> {
                 onPressed: canAfford
                     ? () async {
                         // Create real voucher
-                        final user = firebase_auth.FirebaseAuth.instance.currentUser;
+                        final user =
+                            firebase_auth.FirebaseAuth.instance.currentUser;
                         if (user != null) {
                           final voucher = await voucherService.redeemPoints(
                             userId: user.uid,
@@ -803,7 +862,9 @@ class _RewardScreenState extends State<RewardScreen> {
                             if (mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                  content: const Text('Failed to redeem. Please try again.'),
+                                  content: const Text(
+                                    'Failed to redeem. Please try again.',
+                                  ),
                                   backgroundColor: Colors.red[600],
                                 ),
                               );
@@ -819,10 +880,15 @@ class _RewardScreenState extends State<RewardScreen> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 6,
+                  ),
                 ),
                 child: Text(
-                  canAfford ? 'Redeem' : 'Need ${option.pointsCost - _userPoints} pts',
+                  canAfford
+                      ? 'Redeem'
+                      : 'Need ${option.pointsCost - _userPoints} pts',
                   style: const TextStyle(fontSize: 11),
                 ),
               ),
@@ -842,9 +908,7 @@ class _RewardScreenState extends State<RewardScreen> {
           color: Colors.grey[100],
           borderRadius: BorderRadius.circular(12),
         ),
-        child: const Center(
-          child: Text('Please login to view activity'),
-        ),
+        child: const Center(child: Text('Please login to view activity')),
       );
     }
 
@@ -883,10 +947,7 @@ class _RewardScreenState extends State<RewardScreen> {
                 const SizedBox(height: 4),
                 Text(
                   'Place an order to start earning points!',
-                  style: TextStyle(
-                    color: Colors.grey[500],
-                    fontSize: 12,
-                  ),
+                  style: TextStyle(color: Colors.grey[500], fontSize: 12),
                 ),
               ],
             ),

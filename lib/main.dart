@@ -24,6 +24,7 @@ class MainApp extends StatelessWidget {
       child: MaterialApp(
         home: const SplashScreen(),
         debugShowCheckedModeBanner: false,
+        theme: ThemeData(useMaterial3: true, fontFamily: 'GoogleSans'),
       ),
     );
   }
