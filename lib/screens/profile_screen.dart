@@ -11,6 +11,8 @@ import 'delivery_address_screen.dart';
 import 'order_screen.dart';
 import 'favorites_screen.dart';
 import 'notifications_settings_screen.dart';
+import 'help_support_screen.dart';
+import 'about_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -436,14 +438,28 @@ class ProfileScreen extends StatelessWidget {
                   icon: Icons.help_outline,
                   title: 'Help & Support',
                   subtitle: 'Get help and contact support',
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const HelpSupportScreen(),
+                      ),
+                    );
+                  },
                 ),
                 _buildMenuItem(
                   context,
                   icon: Icons.info_outline,
                   title: 'About',
                   subtitle: 'App version and information',
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const AboutScreen(),
+                      ),
+                    );
+                  },
                 ),
                 const SizedBox(height: 24),
 
