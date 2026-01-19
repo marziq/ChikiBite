@@ -270,11 +270,11 @@ class ProfileScreen extends StatelessWidget {
                         },
                       ),
                       const SizedBox(height: 16),
-                      FutureBuilder<app_user.User?>(
-                        future: profileService.getUserProfileOnce(user.uid),
+                      StreamBuilder<app_user.User?>(
+                        stream: profileService.getUserProfile(user.uid),
                         builder: (context, profileSnapshot) {
-                          final displayName = user.displayName ?? 
-                                            (profileSnapshot.data?.name) ??
+                          final displayName = profileSnapshot.data?.name ?? 
+                                            user.displayName ?? 
                                             'No name';
                           return Text(
                             displayName,
@@ -321,8 +321,14 @@ class ProfileScreen extends StatelessWidget {
                             ),
                           );
                           if (res == true) {
+                            // Update Firebase Auth display name
                             await AuthService.updateDisplayName(
                               nameCtrl.text.trim(),
+                            );
+                            // Also update Firestore profile
+                            await profileService.updatePersonalInfo(
+                              uid: user.uid,
+                              name: nameCtrl.text.trim(),
                             );
                           }
                         },
@@ -333,7 +339,7 @@ class ProfileScreen extends StatelessWidget {
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
-                        child: const Text('Edit Profile'),
+                        child: const Text('Edit Name'),
                       ),
                     ],
                   ),
