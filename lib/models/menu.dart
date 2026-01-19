@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class MenuItem {
   final String itemID;
+  final String documentId;
   final String name;
   final String description;
   final double price;
@@ -20,6 +21,7 @@ class MenuItem {
     required this.price,
     required this.imagePath,
     required this.category,
+    this.documentId = '',
     this.ingredients = const [],
     this.calories = 450,
     this.protein = 25,
@@ -34,6 +36,7 @@ class MenuItem {
     double? price,
     String? imagePath,
     String? category,
+    String? documentId,
     List<String>? ingredients,
     double? calories,
     double? protein,
@@ -47,6 +50,7 @@ class MenuItem {
       price: price ?? this.price,
       imagePath: imagePath ?? this.imagePath,
       category: category ?? this.category,
+      documentId: documentId ?? this.documentId,
       ingredients: ingredients ?? this.ingredients,
       calories: calories ?? this.calories,
       protein: protein ?? this.protein,
@@ -63,6 +67,7 @@ class MenuItem {
       price: (map['price'] as num?)?.toDouble() ?? 0.0,
       imagePath: map['imagePath'] as String? ?? '',
       category: map['category'] as String? ?? '',
+      documentId: docId ?? '',
       ingredients: (map['ingredients'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
       calories: (map['calories'] as num?)?.toDouble() ?? 450,
       protein: (map['protein'] as num?)?.toDouble() ?? 25,
@@ -83,6 +88,7 @@ class MenuItem {
       price: 0,
       imagePath: '',
       category: '',
+      documentId: doc.id,
       ingredients: [],
       calories: 450,
       protein: 25,

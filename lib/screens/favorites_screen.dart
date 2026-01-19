@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../services/profile_service.dart';
 import '../models/user.dart' as app_user;
 import '../models/menu.dart';
+import '../data/menu_data.dart';
 
 class FavoritesScreen extends StatefulWidget {
   const FavoritesScreen({super.key});
@@ -35,7 +36,9 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     }
   }
 
-  Future<void> _removeFavorite(String itemId) async {
+  Future<void> _removeFavorite(String? itemId) async {
+    if (itemId == null || itemId.isEmpty) return;
+    
     final uid = firebase_auth.FirebaseAuth.instance.currentUser?.uid;
     if (uid != null) {
       try {
@@ -114,7 +117,6 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('Menu')
-            .where(FieldPath.documentId, whereIn: favoriteIds)
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -125,11 +127,39 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
             return Center(child: Text('Error: ${snapshot.error}'));
           }
 
-          final items =
-              snapshot.data?.docs
-                  .map((doc) => MenuItem.fromDocument(doc))
-                  .toList() ??
-              [];
+          // Get Firestore items
+          List<MenuItem> firestoreItems = [];
+          if (snapshot.data != null) {
+            firestoreItems = snapshot.data!.docs
+                .where((doc) {
+                  final documentId = doc.id;
+                  final data = doc.data() as Map<String, dynamic>?;
+                  final itemID = data?['itemID'] as String? ?? '';
+                  return favoriteIds.contains(documentId) || favoriteIds.contains(itemID);
+                })
+                .map((doc) => MenuItem.fromDocument(doc))
+                .toList();
+          }
+
+          // Get local menu data items
+          List<MenuItem> localItems = [];
+          if (menuItems.isNotEmpty) {
+            localItems = menuItems
+                .where((item) => item.itemID.isNotEmpty && favoriteIds.contains(item.itemID))
+                .toList();
+          }
+
+          // Combine and remove duplicates
+          final Set<String> seenIds = {};
+          final items = <MenuItem>[];
+          
+          for (var item in [...firestoreItems, ...localItems]) {
+            final id = item.itemID.isNotEmpty ? item.itemID : '';
+            if (id.isNotEmpty && !seenIds.contains(id)) {
+              seenIds.add(id);
+              items.add(item);
+            }
+          }
 
           if (items.isEmpty) {
             return Center(
@@ -238,7 +268,8 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                             TextButton(
                               onPressed: () {
                                 Navigator.pop(context);
-                                _removeFavorite(item.itemID);
+                                final favoriteId = item.itemID ?? '';
+                                _removeFavorite(favoriteId.isNotEmpty ? favoriteId : null);
                               },
                               style: TextButton.styleFrom(
                                 foregroundColor: Colors.red,

@@ -24,6 +24,10 @@ class FirestoreService {
     return _db.collection('Menu').add({
       ...item,
       'createdAt': FieldValue.serverTimestamp(),
+    }).then((docRef) async {
+      // Update the itemID field to match the document ID (so favorites work correctly)
+      await docRef.update({'itemID': docRef.id});
+      return docRef;
     });
   }
 

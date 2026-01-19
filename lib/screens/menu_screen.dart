@@ -416,7 +416,7 @@ class _MenuScreenState extends State<MenuScreen> {
           context,
           MaterialPageRoute(
             builder: (context) => FoodDetailScreen(
-              itemId: item.itemID,
+              itemId: item.documentId.isNotEmpty ? item.documentId : item.itemID,
               foodName: item.name,
               description: item.description,
               price: item.price,
