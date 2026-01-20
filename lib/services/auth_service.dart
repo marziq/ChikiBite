@@ -33,7 +33,7 @@ class AuthService {
     
     return credential;
   }
-
+  //create user
   static Future<UserCredential> register(String email, String password) async {
     try {
       return await _auth.createUserWithEmailAndPassword(
